@@ -38,7 +38,7 @@
     seed: function () {
       if (!CFG.demo || load().some(function (x) { return x.seed; })) return;
       var list = load();
-      list.push({ id: 'seed1', kind: 'ERAS 個案收案', mrn: 'SIM0002', name: '模擬病人乙', site: '右膝', surgeon: '模擬骨科醫師',
+      list.push({ id: 'seed1', kind: 'ERAS 個案收案', mrn: 'SIM0002', name: '模擬病人乙', site: '右邊', surgeon: '模擬骨科醫師',
         by: 'ortho', at: new Date(Date.now() - 2 * 3600e3).toISOString(), readBy: { ortho: '1' }, simulated: true, seed: true });
       save(list);
     }
