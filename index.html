@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>人工膝關節置換 ERAS 影音衛教</title>
+  <link rel="stylesheet" href="assets/app.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#134e4a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ERAS 膝衛教" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <style>#loginForm .field, #loginForm button[type=submit] { display: none !important; }</style>
+</head>
+<body>
+  <!-- 登入 -->
+  <div id="loginOverlay" class="overlay">
+    <form class="login" id="loginForm" autocomplete="off" novalidate>
+      <h1>人工膝關節置換 ERAS 影音衛教</h1>
+      <p class="sub">ERAS 團隊｜外部試用版，只能用模擬身分</p>
+      <div class="field">
+        <label for="inName">姓名</label>
+        <input id="inName" type="text" maxlength="30" required />
+      </div>
+      <div class="field">
+        <label for="inMrn">病歷號</label>
+        <input id="inMrn" type="text" maxlength="20" inputmode="text" required />
+      </div>
+      <div class="field">
+        <label for="inDate">門診日期</label>
+        <input id="inDate" type="date" required />
+      </div>
+      <div class="privacy" id="privacyNote">
+        您輸入的姓名、病歷號與觀看紀錄，只提供您的醫療團隊了解衛教觀看情形。
+        <strong>測試版：</strong>目前紀錄只存在這台裝置，請勿在公用裝置使用，看完請按「登出」。
+      </div>
+      <div class="err" id="loginErr"></div>
+      <button type="submit" class="btn-wide">開始觀看</button>
+      <button type="button" class="btn-wide btn-demo hidden" id="btnDemo">以模擬身分直接試用</button>
+    </form>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">人工膝關節置換 ERAS 影音衛教<small id="whoami"></small></div>
+      <a class="tb-btn hidden" id="lnkAdmin" href="team.html" style="text-decoration:none">ERAS 團隊登入</a>
+      <button class="tb-btn" id="btnFont" type="button">大字體</button>
+      <button class="tb-btn" id="btnLogout" type="button">登出</button>
+    </div>
+    <div class="test-banner">測試版：衛教內容尚待院內審核，實際停藥與禁食請以醫護人員給您的指示為準。</div>
+  </header>
+
+  <nav class="stages" id="stages" aria-label="衛教進度"></nav>
+
+  <main class="layout">
+    <section>
+      <div class="player" id="player">
+        <video id="video" playsinline controls preload="metadata"></video>
+        <div class="voice-card hidden" id="voiceCard">
+          <div class="label">語音解說（可按下方按鈕朗讀）</div>
+          <p id="voiceText"></p>
+        </div>
+        <div class="player-bar">
+          <button type="button" id="btnPlay">▶ 播放</button>
+          <button type="button" class="ghost" id="btnRate">語速：慢</button>
+          <span id="clipLabel"></span>
+          <div class="clip-dots" id="clipDots"></div>
+        </div>
+      </div>
+
+      <div class="node-head">
+        <span class="tag" id="nodeTag"></span>
+        <h2 id="nodeTitle"></h2>
+      </div>
+      <div class="core" id="nodeCore"></div>
+      <div class="redflag hidden" id="nodeFlag"><strong>請立即向醫護人員反映</strong><span></span></div>
+
+      <div class="question hidden" id="nodeQuestion"></div>
+      <div class="options" id="nodeOptions"></div>
+
+      <div class="nav-row">
+        <button type="button" class="btn-back" id="btnBack">← 上一步</button>
+        <button type="button" class="btn-next" id="btnNext">下一步 →</button>
+      </div>
+
+      <div class="card sv-card hidden" id="surveyCard">
+        <h3>📝 ERAS 病人滿意度調查</h3>
+        <p id="svStatus"></p>
+        <button type="button" class="btn-wide" id="btnSurvey">開始填寫</button>
+      </div>
+    </section>
+
+    <aside style="display:flex;flex-direction:column;gap:16px">
+      <div class="card hidden" id="toolFasting">
+        <h3>術前禁食試算器</h3>
+        <div class="tool">
+          <label for="surgTime">預計手術時間：</label>
+          <input type="time" id="surgTime" value="08:00" />
+          <div class="cut solid"><span>固體食物、牛奶豆漿截止（前 8 小時）</span><span id="cutSolid"></span></div>
+          <div class="cut liquid"><span>清流質截止（前 2 小時）</span><span id="cutLiquid"></span></div>
+        </div>
+      </div>
+
+      <div class="card hidden" id="toolAnkle">
+        <h3>踝幫浦運動跟練</h3>
+        <div class="ankle-cue" id="ankleCue">按下開始，跟著節拍一起做</div>
+        <div style="font-size:.8em;color:var(--muted);text-align:center;margin-bottom:8px">已完成 <b id="ankleCount">0</b> 下</div>
+        <button type="button" class="btn-wide" id="btnAnkle">開始跟練</button>
+      </div>
+
+      <div class="card hidden" id="checkCard">
+        <h3>我的行動檢核表</h3>
+        <div id="checklist"></div>
+      </div>
+
+      <div class="card">
+        <h3>衛教目錄</h3>
+        <ul class="toc" id="toc"></ul>
+      </div>
+    </aside>
+  </main>
+
+
+  <!-- 我有疑問 -->
+  <button type="button" class="ask-fab" id="btnAsk" aria-haspopup="dialog">💬 我有疑問</button>
+  <div id="askOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+    <div class="login ask-box">
+      <div class="ask-head"><h1 id="askTitle">我有疑問</h1><button type="button" class="ask-x" id="askClose" aria-label="關閉">✕</button></div>
+      <div class="ask-urgent">這裡不是急診管道。若有胸痛、呼吸困難、意識不清、大量出血等緊急狀況，請立即撥打 119 或到急診就醫。</div>
+      <div id="askFormWrap">
+        <form id="askForm" autocomplete="on" novalidate>
+          <p class="sub" id="askAbout"></p>
+          <div class="field">
+            <label for="askText">您的問題（打字，或用下方語音）</label>
+            <textarea id="askText" rows="4" maxlength="1000" placeholder="例如：我有吃抗凝血劑，手術前幾天要停？"></textarea>
+          </div>
+          <div class="ask-voice">
+            <button type="button" class="ask-mini" id="btnRec">🎤 按此錄音</button>
+            <button type="button" class="ask-mini hidden" id="btnDictate">🗣 語音轉文字</button>
+            <span class="ask-note" id="askRecTime"></span>
+          </div>
+          <div class="ask-note" id="askRecHint">錄音最長 90 秒，個管師可以直接聽您的聲音。</div>
+          <div class="field ask-file" id="askFileWrap">
+            <label for="askFile" class="ask-file-btn">🎙 用手機錄音／選擇語音檔</label>
+            <input id="askFile" class="ask-file-input" type="file" accept="audio/*" capture />
+          </div>
+          <div class="ask-audio hidden" id="askAudioBox"></div>
+          <div class="ask-row">
+            <div class="field"><label for="askPhone">聯絡電話</label><input id="askPhone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="0912345678" /></div>
+            <div class="field"><label for="askEmail">Email</label><input id="askEmail" type="email" maxlength="80" autocomplete="email" placeholder="name@example.com" /></div>
+          </div>
+          <div class="ask-note" style="margin:-8px 0 12px">電話或 Email 至少填寫一項。</div>
+          <div class="ask-row">
+            <div class="field"><label for="askWho">提問者</label><select id="askWho" class="ask-select"><option>病人本人</option><option>家屬或照顧者</option></select></div>
+            <div class="field"><label for="askTime">方便聯絡時段</label><select id="askTime" class="ask-select"><option>不限</option><option>上午</option><option>下午</option><option>晚上</option></select></div>
+          </div>
+          <label class="ask-agree"><input type="checkbox" id="askAgree" /> 我同意 ERAS 個管師以上述電話或 Email 與我聯絡。</label>
+          <div class="err" id="askErr"></div>
+          <button type="submit" class="btn-wide">送出問題</button>
+        </form>
+      </div>
+      <div id="askDone" class="hidden ask-done">
+        <p class="ask-ok">已送出，個管師會盡快與您聯絡。</p>
+        <p class="ask-note">實際停藥、禁食與用藥，請以醫護人員給您的指示為準。</p>
+        <button type="button" class="btn-wide" id="askAgain">再問一個問題</button>
+        <button type="button" class="btn-wide btn-demo" id="askDoneClose">回到衛教影片</button>
+      </div>
+      <div id="askMineWrap" class="hidden">
+        <h2 class="ask-h2">我的提問</h2>
+        <ul class="ask-mine" id="askMine"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 出院滿意度問卷 -->
+  <div id="svOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="svTitle">
+    <div class="login ask-box sv-box">
+      <div class="ask-head"><h1 id="svTitle">出院滿意度問卷</h1><button type="button" class="ask-x" id="svClose" aria-label="關閉">✕</button></div>
+      <div id="svFormWrap">
+        <p class="sub sv-intro" id="svIntro"></p>
+        <div id="svForm"></div>
+        <div class="err" id="svErr"></div>
+        <button type="button" class="btn-wide" id="svSubmit">送出問卷</button>
+      </div>
+      <div id="svThanks" class="hidden ask-done">
+        <p class="ask-ok">謝謝您的填寫！</p>
+        <p class="ask-note">祝您早日康復。出院後若有疑問，可按右下角「我有疑問」。</p>
+        <button type="button" class="btn-wide" id="svThanksClose">回到衛教影片</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/nodes.js"></script>
+  <script src="assets/store.js"></script>
+  <script>window.ERAS_CONFIG.demo = true;</script>
+  <script src="assets/app.js"></script>
+  <script src="assets/questions.js"></script>
+  <script src="assets/ask.js"></script>
+  <script src="assets/survey.js"></script>
+  <script src="assets/install.js"></script>
+</body>
+</html>

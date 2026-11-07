@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>ERAS 團隊登入</title>
+  <link rel="stylesheet" href="assets/app.css" />
+  <link rel="stylesheet" href="assets/admin.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#134e4a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ERAS 膝衛教" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <style>#loginForm .field, #loginForm button[type=submit] { display: none !important; }</style>
+</head>
+<body class="admin-root">
+  <div id="pinOverlay" class="overlay">
+    <form class="login" id="pinForm" autocomplete="off">
+      <h1>ERAS 團隊登入</h1>
+      <p class="sub">請選擇您的職類，並輸入該職類的專屬密碼</p>
+      <div class="field"><label for="role">職類</label><select id="role" class="select"></select></div>
+      <div class="field"><label for="pin">密碼</label><input id="pin" type="password" inputmode="numeric" /></div>
+      <div class="privacy hidden" id="pinHint"></div>
+      <div class="err" id="pinErr"></div>
+      <button class="btn-wide" type="submit">登入</button>
+      <p class="privacy" style="margin-top:14px">測試版：密碼寫在程式設定中，只能防止誤入，不具資安保護。正式上線須改由院內帳號驗證身分。</p>
+    </form>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">ERAS 團隊<small id="whoRole">人工膝關節置換 ERAS 照護紀錄</small></div>
+      <a class="tb-btn" id="lnkPatient" href="index.html" style="text-decoration:none">開啟病人端</a>
+      <button class="tb-btn" id="btnTeamLogout" type="button">登出</button>
+    </div>
+    <div class="test-banner" id="modeBanner"></div>
+  </header>
+
+  <div class="admin-wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab on" data-tab="care" type="button">照護紀錄</button>
+      <button class="tab adm" data-tab="questions" type="button">病人提問 <span class="badge hidden" id="qBadge"></span></button>
+      <button class="tab adm" data-tab="careall" type="button">照護紀錄總表</button>
+      <button class="tab adm" data-tab="survey" type="button">滿意度問卷</button>
+      <button class="tab adm" data-tab="records" type="button">衛教觀看紀錄</button>
+      <button class="tab adm" data-tab="review" type="button">內容審核狀態</button>
+      <button class="tab adm" data-tab="share" type="button">QR Code</button>
+      <button class="tab adm" data-tab="defs" type="button">指標定義</button>
+    </div>
+
+    <!-- 照護紀錄（各職類） -->
+    <section class="pane" id="pane-care">
+      <form class="toolbar mrn-bar" id="mrnForm" autocomplete="off">
+        <label for="careMrn"><b>病人病歷號</b></label>
+        <input id="careMrn" type="text" maxlength="20" placeholder="輸入病歷號" />
+        <button class="btn" type="submit">查詢</button>
+        <span class="err" id="mrnErr"></span>
+      </form>
+      <div id="careEmpty" class="card empty-card">請先輸入病人病歷號，再填寫您職類的照護項目。</div>
+      <div id="careBody" class="hidden">
+        <div class="card pt-card" id="ptCard"></div>
+        <div class="card rate-card" id="careRate"></div>
+        <h3 class="sec-h" id="careHead"></h3>
+        <p class="hint">項目依健保署「術後加速康復推廣計畫」附件七關節置換術執行項目清單（115/8/4 修正）。各項目的負責職類為暫定分工，待 ERAS 團隊確認。每次儲存都會留下一筆紀錄並顯示執行時間；執行率以每個項目最新一筆紀錄計算。</p>
+        <label class="scope hidden" id="careScopeWrap"><input type="checkbox" id="careScope" /> 顯示全部項目（代其他職類登錄）</label>
+        <div id="careItems"></div>
+        <h3 class="sec-h">本病人照護時間軸（全部職類）</h3>
+        <div class="table-wrap">
+          <table class="grid" id="tblTimeline">
+            <thead><tr><th>執行時間</th><th>階段</th><th>職類</th><th>照護項目</th><th>內容</th><th>紀錄時間</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="empty hidden" id="tlEmpty">尚無照護紀錄。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 病人提問（個管師） -->
+    <section class="pane hidden" id="pane-questions">
+      <div class="toolbar">
+        <input type="search" id="qq" placeholder="搜尋姓名、病歷號、電話或問題" />
+        <select id="qStatus" class="select" style="width:auto"><option value="">全部狀態</option><option>待回覆</option><option>已聯絡</option><option>已結案</option></select>
+        <span class="grow"></span>
+        <button type="button" class="btn ghost" id="btnCopyQ">複製提問清單（可貼到 Excel）</button>
+      </div>
+      <textarea id="copyBoxQ" class="copybox hidden" rows="5" readonly aria-label="複製內容"></textarea>
+      <p class="hint">測試版：只看得到在這台裝置送出的提問。正式上線需改存院內伺服器，個管師才能收到所有病人的提問；電話與 Email 屬個人資料，請依院內規定使用。</p>
+      <div id="qList"></div>
+      <p class="empty hidden" id="qEmpty">目前沒有病人提問。</p>
+    </section>
+
+    <!-- 滿意度問卷（個管師） -->
+    <section class="pane hidden" id="pane-survey">
+      <div class="toolbar">
+        <input type="search" id="svq" placeholder="搜尋姓名或病歷號" />
+        <span class="grow"></span>
+        <button type="button" class="btn ghost" id="btnCopySv">複製問卷結果（可貼到 Excel）</button>
+      </div>
+      <textarea id="copyBoxSv" class="copybox hidden" rows="5" readonly aria-label="複製內容"></textarea>
+      <p class="hint">題目照院內現行「術後加速康復療程(ERAS)病人滿意度調查表」。網頁計分：非常滿意 5、滿意 4、普通 3、不滿意 2、非常不滿意 1（原表未定分數，為網頁設定）；第 16 題只有第 15 題答「有」的病人作答，不列入平均。病人送出後，照護清單「出院當天 4.出院病人滿意度」會自動記為已執行。</p>
+      <h3 class="sec-h" style="margin-top:4px">各題統計</h3>
+      <div class="table-wrap" style="margin-bottom:16px">
+        <table class="grid" id="tblSvSum">
+          <thead><tr><th>題目</th><th class="num">填答人數</th><th class="num">平均分數</th><th class="num">滿意＋非常滿意</th><th class="num">不滿意＋非常不滿意</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h3 class="sec-h" style="margin-top:4px">每位病人的回答</h3>
+      <div class="table-wrap">
+        <table class="grid" id="tblSv">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty hidden" id="svEmpty">目前沒有問卷資料。</p>
+      </div>
+    </section>
+
+    <!-- 照護紀錄總表（個管師） -->
+    <section class="pane hidden" id="pane-careall">
+      <div class="toolbar">
+        <input type="search" id="cq" placeholder="搜尋病歷號、職類或項目" />
+        <span class="grow"></span>
+        <button type="button" class="btn ghost" id="btnCopyCare">複製照護紀錄（可貼到 Excel）</button>
+      </div>
+      <textarea id="copyBoxCare" class="copybox hidden" rows="5" readonly aria-label="複製內容"></textarea>
+      <h3 class="sec-h" style="margin-top:4px">各病人 ERAS 清單執行率</h3>
+      <div class="table-wrap" style="margin-bottom:16px">
+        <table class="grid" id="tblRate">
+          <thead><tr><th>病歷號</th><th class="num">已紀錄項目</th><th class="num">已執行項目</th><th class="num">執行率</th><th>支付規範（≥60%）</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h3 class="sec-h" style="margin-top:4px">照護紀錄明細</h3>
+      <div class="table-wrap">
+        <table class="grid" id="tblCareAll">
+          <thead><tr><th>病歷號</th><th>執行時間</th><th>階段</th><th>職類</th><th>照護項目</th><th>內容</th><th>紀錄時間</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty hidden" id="careAllEmpty">尚無照護紀錄。</p>
+      </div>
+    </section>
+
+    <!-- 觀看紀錄 -->
+    <section class="pane hidden" id="pane-records">
+      <div class="kpis" id="kpis"></div>
+      <div class="toolbar">
+        <input type="search" id="q" placeholder="搜尋姓名或病歷號" />
+        <label>門診日期 <input type="date" id="from" /> 至 <input type="date" id="to" /></label>
+        <span class="grow"></span>
+        <button type="button" class="btn" id="btnCsvSum">下載總表 CSV</button>
+        <button type="button" class="btn" id="btnCsvDetail">下載明細 CSV</button>
+        <button type="button" class="btn ghost" id="btnCopySum">複製總表</button>
+        <button type="button" class="btn ghost" id="btnCopyDetail">複製明細</button>
+      </div>
+      <textarea id="copyBox" class="copybox hidden" rows="5" readonly aria-label="複製內容"></textarea>
+      <div class="table-wrap">
+        <table class="grid" id="tblPatients">
+          <thead><tr>
+            <th>姓名</th><th>病歷號</th><th>門診日期</th><th>首次觀看</th><th>最後觀看</th>
+            <th class="num">登入次數</th><th class="num">主要項目已看</th><th class="num">總觀看時間</th><th></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty hidden" id="emptyMsg">目前沒有觀看紀錄。可按下方「載入模擬資料」預覽後台畫面。</p>
+      </div>
+
+      <div class="card hidden" id="detailCard" style="margin-top:16px">
+        <div class="detail-head"><h3 id="detailTitle"></h3><button type="button" class="btn ghost" id="btnCloseDetail">關閉</button></div>
+        <div class="table-wrap">
+          <table class="grid" id="tblDetail">
+            <thead><tr><th>階段</th><th>項目</th><th>類型</th><th class="num">觀看次數</th><th class="num">觀看時間</th><th class="num">影片播放時間</th><th>最後觀看</th></tr></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <button type="button" class="btn ghost" id="btnSim">載入模擬資料</button>
+        <button type="button" class="btn ghost" id="btnDelSim">刪除模擬資料</button>
+        <button type="button" class="btn warn" id="btnClear">清除這台裝置的全部紀錄</button>
+      </div>
+    </section>
+
+    <!-- 內容審核 -->
+    <section class="pane hidden" id="pane-review">
+      <p class="lead">標示「待確認」的項目，是依步驟 1 待確認清單修改的衛教內容，需請麻醉科、骨科或藥劑部確認後才能正式上線。</p>
+      <div class="table-wrap">
+        <table class="grid" id="tblReview">
+          <thead><tr><th>階段</th><th>項目</th><th>類型</th><th>影片</th><th>審核狀態</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- QR -->
+    <section class="pane hidden" id="pane-share">
+      <p class="lead">病人端網址（上線後請改成正式網址）：</p>
+      <div class="toolbar"><input type="url" id="shareUrl" style="flex:1;min-width:260px" /><button type="button" class="btn" id="btnCopy">複製網址</button></div>
+      <div id="qr" class="qr"></div>
+      <p class="hint">QR Code 只包含網址，不含任何病人資料。病人掃碼後，需自行輸入姓名、病歷號與門診日期。</p>
+    </section>
+
+    <!-- 指標定義 -->
+    <section class="pane hidden" id="pane-defs">
+      <table class="grid defs">
+        <thead><tr><th>指標</th><th>定義</th><th>資料來源</th></tr></thead>
+        <tbody>
+          <tr><td>觀看次數</td><td>病人進入該項目畫面的次數。離開後再次進入，次數加 1。</td><td>病人端每次切換項目時記錄</td></tr>
+          <tr><td>觀看時間</td><td>該項目畫面在前景顯示的累計秒數。畫面切到背景，或超過 3 分鐘沒有任何操作且影片／語音未播放時，不計時。</td><td>病人端每秒判斷，每 5 秒寫入</td></tr>
+          <tr><td>影片播放時間</td><td>該項目影片實際播放的累計秒數（快轉跳過的部分不計）。</td><td>影片播放進度</td></tr>
+          <tr><td>總觀看時間</td><td>同一位病人所有項目「觀看時間」的加總。</td><td>由上述欄位計算</td></tr>
+          <tr><td>主要項目已看</td><td>主線項目中觀看次數 ≥ 1 的項目數，除以主線項目總數。補充說明（分流）項目不列入分母。</td><td>由上述欄位計算</td></tr>
+          <tr><td>ERAS 清單執行率</td><td>每個項目取最新一筆紀錄，狀態為「已執行」的項目數 ÷ 清單項目總數（關節置換術 47 項）。尚未紀錄的項目視為未執行。健保支付規範要求達 60% 以上；官方是否排除「不適用」項目，待確認。</td><td>ERAS 團隊照護紀錄</td></tr>
+          <tr><td>滿意度平均分數</td><td>院內現行 ERAS 病人滿意度調查表，非常滿意 5 分～非常不滿意 1 分（網頁設定）。各題平均＝分數加總 ÷ 該題填答人數；「滿意＋非常滿意」比率＝選這兩項的人數 ÷ 該題填答人數。第 16 題僅曾有手術經驗者作答。每位病人（病歷號＋門診日期）保留最後一次填寫的答案。</td><td>病人端出院滿意度問卷</td></tr>
+          <tr><td>同一位病人</td><td>病歷號＋門診日期相同，視為同一位病人，多次登入的紀錄會累加。</td><td>登入資料</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="assets/nodes.js"></script>
+  <script src="assets/store.js"></script>
+  <script>window.ERAS_CONFIG.demo = true;</script>
+  <script src="assets/care_items.js"></script>
+  <script src="assets/questions.js"></script>
+  <script src="assets/team.js"></script>
+  <script src="assets/qadmin.js"></script>
+  <script src="assets/survey.js"></script>
+  <script src="assets/sadmin.js"></script>
+  <script src="assets/admin.js"></script>
+  <script src="assets/install.js"></script>
+</body>
+</html>
