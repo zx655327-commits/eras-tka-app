@@ -1,6 +1,6 @@
 # 人工膝關節置換ERAS影音衛教個管師（外部試用版）
 
-試用網址：https://ju907699-maker.github.io/eras-tka-app/
+試用網址：https://zx655327-commits.github.io/eras-tka-app/
 
 - 這是試用版，病人端請輸入測試病歷號 12345，團隊端需輸入各職類密碼；請勿輸入任何真實病人資料。
 - 紀錄只存在使用者自己的瀏覽器，不會上傳。
