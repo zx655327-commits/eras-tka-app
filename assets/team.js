@@ -32,7 +32,7 @@
   ROLES.forEach(function (r) {
     var o = document.createElement('option'); o.value = r.id; o.textContent = r.name; $('role').appendChild(o);
   });
-  if (CFG.demo) {
+  if (CFG.demo && !CFG.hidePins) {
     var h = $('pinHint');
     h.innerHTML = '<strong>展示版各職類密碼</strong>';
     var ul = document.createElement('div'); ul.className = 'pin-list';

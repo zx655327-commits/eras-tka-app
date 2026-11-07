@@ -14,7 +14,6 @@
   <meta name="apple-mobile-web-app-title" content="ERAS 膝衛教" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" type="image/png" href="icons/icon-192.png" />
-  <style>#loginForm .field, #loginForm button[type=submit] { display: none !important; }</style>
 </head>
 <body class="admin-root">
   <div id="pinOverlay" class="overlay">
@@ -225,7 +224,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="assets/nodes.js"></script>
   <script src="assets/store.js"></script>
-  <script>window.ERAS_CONFIG.demo = true;</script>
+  <script>window.ERAS_CONFIG.demo = true; window.ERAS_CONFIG.trialMrn = '12345'; window.ERAS_CONFIG.hidePins = true;</script>
   <script src="assets/care_items.js"></script>
   <script src="assets/questions.js"></script>
   <script src="assets/team.js"></script>

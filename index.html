@@ -12,14 +12,13 @@
   <meta name="apple-mobile-web-app-title" content="ERAS 膝衛教" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" type="image/png" href="icons/icon-192.png" />
-  <style>#loginForm .field, #loginForm button[type=submit] { display: none !important; }</style>
 </head>
 <body>
   <!-- 登入 -->
   <div id="loginOverlay" class="overlay">
     <form class="login" id="loginForm" autocomplete="off" novalidate>
       <h1>人工膝關節置換 ERAS 影音衛教</h1>
-      <p class="sub">ERAS 團隊｜外部試用版，只能用模擬身分</p>
+      <p class="sub">ERAS 團隊｜外部試用版，請輸入測試病歷號</p>
       <div class="field">
         <label for="inName">姓名</label>
         <input id="inName" type="text" maxlength="30" required />
@@ -194,7 +193,7 @@
 
   <script src="assets/nodes.js"></script>
   <script src="assets/store.js"></script>
-  <script>window.ERAS_CONFIG.demo = true;</script>
+  <script>window.ERAS_CONFIG.demo = true; window.ERAS_CONFIG.trialMrn = '12345'; window.ERAS_CONFIG.hidePins = true;</script>
   <script src="assets/app.js"></script>
   <script src="assets/questions.js"></script>
   <script src="assets/ask.js"></script>
