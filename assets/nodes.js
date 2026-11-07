@@ -17,16 +17,19 @@ window.ERAS_NODES = {
   /* ───────── 認識手術 ───────── */
   welcome: {
     stage: 'intro', main: true, title: '歡迎觀看人工膝關節置換術前衛教',
+    videos: ['v/01.mp4'],
     corePoint: '歡迎您與家屬一起觀看，了解從術前到出院的照護重點。',
     next: 'opening'
   },
   opening: {
     stage: 'intro', main: true, title: '開場：手術前先了解流程',
+    videos: ['v/02.mp4'],
     corePoint: '手術前先了解流程，會讓您更安心。',
     next: 'reason'
   },
   reason: {
     stage: 'intro', main: true, title: '為什麼建議做人工膝關節置換',
+    videos: ['v/03.mp4', 'v/04.mp4', 'v/05.mp4'],
     corePoint: '膝痛影響生活品質時，手術是替換磨損的關節表面，幫助您恢復活動力。',
     checklist: [
       '了解膝關節置換是替換磨損的關節表面，目的是恢復行走與活動力',
@@ -36,6 +39,7 @@ window.ERAS_NODES = {
   },
   eras_flow: {
     stage: 'intro', main: true, title: 'ERAS 照護流程簡介',
+    videos: ['v/06.mp4'],
     corePoint: '接下來會依序說明：術前準備、麻醉、疼痛控制、早期活動與出院後追蹤。',
     next: 'history'
   },
@@ -43,6 +47,7 @@ window.ERAS_NODES = {
   /* ───────── 術前準備 ───────── */
   history: {
     stage: 'preop', main: true, title: '過敏史與噁心嘔吐經驗要先說',
+    videos: ['v/07.mp4'],
     corePoint: '過去對藥物或食物過敏、以前麻醉後有噁心嘔吐，請主動告訴醫師。',
     checklist: [
       '主動告知藥物、食物過敏史',
@@ -53,6 +58,7 @@ window.ERAS_NODES = {
   },
   meds: {
     stage: 'preop', main: true, title: '主動告知用藥、保健品與慢性病',
+    videos: ['v/08.mp4'],
     corePoint: '抗凝血藥、糖尿病藥物不可自行停用，請依醫師給您的指示。',
     checklist: [
       '備妥所有醫院與診所的藥袋或藥單，交給醫護人員核對',
@@ -131,6 +137,7 @@ window.ERAS_NODES = {
   },
   exam: {
     stage: 'preop', main: true, title: '術前檢查是為了安全',
+    videos: ['v/09.mp4'],
     corePoint: '手術前，醫療團隊會安排必要檢查與評估，確認您的身體狀況，讓手術與麻醉更安全。',
     next: 'fasting'
   },
@@ -178,17 +185,20 @@ window.ERAS_NODES = {
   /* ───────── 手術當日 ───────── */
   identity: {
     stage: 'day', main: true, title: '多次核對身分與手術部位',
+    videos: ['v/10.mp4'],
     corePoint: '入院後與手術當日，醫護人員會多次核對您的姓名、手術部位與相關資料，這是保障安全的重要步驟。',
     next: 'surgery_day'
   },
   surgery_day: {
     stage: 'day', main: true, title: '手術當日準備',
+    videos: ['v/11.mp4'],
     corePoint: '手術當日請更換病人服，取下假牙、飾品與指甲油。接近手術時間時，工作人員會協助您前往手術室。',
     checklist: [ '更換病人服', '取下假牙、飾品，卸除指甲油' ],
     next: 'ponv'
   },
   ponv: {
     stage: 'day', main: true, title: '預防噁心嘔吐與保溫',
+    videos: ['v/12.mp4'],
     corePoint: '麻醉團隊會依您的風險安排保溫、止吐與止痛，讓您在安全中完成手術。',
     next: 'intraop'
   },
@@ -196,11 +206,13 @@ window.ERAS_NODES = {
   /* ───────── 手術中 ───────── */
   intraop: {
     stage: 'intraop', main: true, title: '手術中的麻醉監測',
+    videos: ['v/13.mp4'],
     corePoint: '手術中，麻醉團隊會持續監測血壓、心跳、血氧與體溫，並依您的狀況調整照護。',
     next: 'discomfort'
   },
   discomfort: {
     stage: 'intraop', main: true, title: '不舒服請主動告知',
+    videos: ['v/14.mp4'],
     corePoint: '如果您感到緊張、冷、噁心、疼痛或任何不舒服，請主動告訴醫護人員，我們會協助您處理。',
     next: 'pain_intro'
   },
@@ -208,6 +220,7 @@ window.ERAS_NODES = {
   /* ───────── 術後恢復 ───────── */
   pain_intro: {
     stage: 'postop', main: true, title: '止痛是為了能活動：多模式止痛',
+    videos: ['v/15.mp4', 'v/16.mp4'],
     corePoint: '止痛的目的是讓您能翻身、起床與活動。我們會合併多種止痛方式，減少副作用。',
     checklist: [
       '了解止痛是為了能活動，不需要忍痛',
@@ -217,6 +230,7 @@ window.ERAS_NODES = {
   },
   pain_assess: {
     stage: 'postop', main: true, title: '術後疼痛評估：0～10 分',
+    videos: ['v/17.mp4'],
     corePoint: '用 0～10 分告訴護理師您的疼痛：0 分是不痛，10 分是最痛。',
     question: '請點選您目前（或想了解）的疼痛分數：',
     options: [
@@ -254,6 +268,7 @@ window.ERAS_NODES = {
   },
   rehab: {
     stage: 'postop', main: true, review: 'pending', title: '床上復健運動與漸進式下床',
+    videos: ['v/18.mp4'],
     tool: 'ankle',
     corePoint: '床上勤做踝幫浦運動預防血栓；下床前先坐床邊，確認不頭暈再站起來。',
     checklist: [
@@ -281,6 +296,7 @@ window.ERAS_NODES = {
   },
   walker: {
     stage: 'postop', main: true, title: '使用助行器安全行走',
+    videos: ['v/19.mp4'],
     corePoint: '口訣：助行器先往前放穩 → 開刀腳跨出 → 好腳跟上。轉彎用小碎步。',
     checklist: [
       '助行器高度約與手腕橫紋齊平，握把時手肘微彎',
@@ -293,6 +309,7 @@ window.ERAS_NODES = {
   /* ───────── 出院 ───────── */
   discharge: {
     stage: 'home', main: true, title: '出院衛教與傷口照護',
+    videos: ['v/20.mp4'],
     corePoint: '出院前，護理師會說明傷口照護、居家活動與回診追蹤。',
     redFlag: '出院後若傷口紅腫熱痛、流膿、發燒，或小腿單側腫痛、突然胸痛或呼吸喘，請立即回診或到急診。',
     survey: true,
@@ -300,6 +317,7 @@ window.ERAS_NODES = {
   },
   closing: {
     stage: 'home', main: true, title: '一起邁向安全的康復',
+    videos: ['v/21.mp4'],
     corePoint: '恭喜您看完全部衛教內容。醫療團隊會陪伴您安全、有計畫地恢復。',
     survey: true,
     end: true
