@@ -22,8 +22,12 @@
 
   var tip = document.createElement('div');
   tip.className = 'overlay hidden'; tip.setAttribute('role', 'dialog');
+  var isCriOS = /CriOS/.test(ua);
+  var safariSteps = '<p class="sub" style="font-size:1em;line-height:1.8"><b>Safari</b>：點畫面下方的「分享」按鈕 <b>⬆︎</b> → 選「<b>加入主畫面</b>」→ 按「新增」</p>';
+  var chromeSteps = '<p class="sub" style="font-size:1em;line-height:1.8"><b>Chrome</b>：點網址列右側的「分享」按鈕 <b>⬆︎</b> → 選「<b>加入主畫面</b>」→ 按「新增」</p>';
   tip.innerHTML = '<div class="login" style="text-align:center"><h1>加入主畫面</h1>' +
-    '<p class="sub" style="font-size:1em;line-height:1.8">1. 用 <b>Safari</b> 開啟本頁<br>2. 點下方的「分享」按鈕 <b>⬆︎</b><br>3. 選「<b>加入主畫面</b>」，再按「新增」</p>' +
+    (isCriOS ? chromeSteps + safariSteps : safariSteps + chromeSteps) +
+    '<p class="sub">若選單中沒看到「加入主畫面」，請往下滑或按「編輯動作」找出來。</p>' +
     '<p class="sub">之後從手機桌面的「ERAS 膝衛教」圖示直接開啟。</p>' +
     '<button type="button" class="btn-wide">我知道了</button></div>';
   tip.querySelector('button').addEventListener('click', function () { tip.classList.add('hidden'); });
