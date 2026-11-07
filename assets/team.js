@@ -50,6 +50,7 @@
   $('btnTeamLogout').addEventListener('click', function () {
     var ss = sid(); if (ss) ss.removeItem(ROLE_KEY);
     state.role = null; state.mrn = null;
+    if (window.ERAS_NOTICES) window.ERAS_NOTICES.refresh();
     $('careMrn').value = ''; $('careBody').classList.add('hidden'); $('careEmpty').classList.remove('hidden');
     $('pinOverlay').classList.remove('hidden');
   });
@@ -62,6 +63,7 @@
     var careTab = document.querySelector('.tab[data-tab=care]');
     if (careTab) careTab.click();
     if (CFG.demo) seedCare();
+    if (window.ERAS_NOTICES) { if (CFG.demo) window.ERAS_NOTICES.seed(); window.ERAS_NOTICES.refresh(); }
     if (state.mrn) renderPatient();
     if (r.admin && window.ERAS_ADMIN_REFRESH) window.ERAS_ADMIN_REFRESH();
     if (r.admin && window.ERAS_QADMIN) window.ERAS_QADMIN.refresh();
@@ -243,6 +245,15 @@
       fBox.appendChild(l); fBox.appendChild(el);
       if (f.unit) { var u = document.createElement('span'); u.className = 'ci-unit'; u.textContent = f.unit; fBox.appendChild(u); }
     });
+    if (fEls.pname && !fEls.pname.value) {
+      var known = Store.listPatients().filter(function (p) { return p.mrn === state.mrn && p.name && p.name !== '測試病人'; })[0];
+      if (known) fEls.pname.value = known.name;
+    }
+    if (it.notify) {
+      var nh = document.createElement('p'); nh.className = 'hint'; nh.style.margin = '6px 0 0';
+      nh.textContent = '勾選已執行並儲存後，會發出「ERAS 個案收案通知」給各職類（病歷號、姓名、手術部位、手術醫師）。';
+      form.appendChild(nh);
+    }
     if (fEls.h && fEls.w && fEls.bmi) {
       var calc = function () { var h = Number(fEls.h.value) / 100, w = Number(fEls.w.value); if (h > 0 && w > 0) fEls.bmi.value = (w / (h * h)).toFixed(1); };
       fEls.h.addEventListener('input', calc); fEls.w.addEventListener('input', calc);
@@ -275,7 +286,7 @@
         if (it.opts.length && !opts.length) { msg.textContent = '請勾選已執行的內容'; return; }
         for (var i = 0; i < it.fields.length; i++) {
           var f = it.fields[i], val = String(fEls[f.k].value || '').trim();
-          if (val === '') continue;
+          if (val === '') { if (f.req) { msg.textContent = '請填寫' + f.label; return; } continue; }
           if (f.type === 'number') {
             var x = Number(val);
             if (isNaN(x) || x < f.min || x > f.max) { msg.textContent = f.label + '需在 ' + f.min + '～' + f.max + ' 之間'; return; }
@@ -289,6 +300,9 @@
         item: it.id, status: status, opts: opts, fields: fields, note: n,
         value: summarize(status, opts, fields, it, n), execAt: time.value, recordedAt: new Date().toISOString(), simulated: !!CFG.demo });
       saveCare(all);
+      if (it.notify && status === 'done' && window.ERAS_NOTICES) {
+        window.ERAS_NOTICES.add({ mrn: state.mrn, name: fields.pname, site: fields.site, surgeon: fields.surgeon, by: state.role.id, simulated: !!CFG.demo });
+      }
       renderItems(); renderTimeline();
     });
     row.appendChild(form);

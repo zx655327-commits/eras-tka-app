@@ -217,6 +217,7 @@
     if (window.ERAS_TEAM) window.ERAS_TEAM.clearSimCare();
     if (window.ERAS_QUESTIONS) window.ERAS_QUESTIONS.removeSimulated();
     if (window.ERAS_SURVEY) window.ERAS_SURVEY.removeSimulated();
+    if (window.ERAS_NOTICES) window.ERAS_NOTICES.removeSimulated();
     if (window.ERAS_SADMIN) window.ERAS_SADMIN.refresh();
     if (window.ERAS_QADMIN) window.ERAS_QADMIN.refresh();
     closeDetail(); renderAll();

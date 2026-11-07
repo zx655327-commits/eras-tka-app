@@ -28,17 +28,19 @@ window.ERAS_CHECKLIST_SOURCE = '健保署 ERAS 推廣計畫附件七（115/8/4 �
 window.ERAS_PAY_THRESHOLD = 0.6; // 支付規範：執行項目清單執行率須達 60% 以上
 
 (function () {
-  function I(id, phase, roles, label, opts, fields) {
-    return { id: id, phase: phase, roles: roles, label: label, opts: opts || [], fields: fields || [] };
+  function I(id, phase, roles, label, opts, fields, notify) {
+    return { id: id, phase: phase, roles: roles, label: label, opts: opts || [], fields: fields || [], notify: !!notify };
   }
   var NUM = function (k, label, unit, min, max, step) { return { k: k, label: label, type: 'number', unit: unit, min: min, max: max, step: step || 1 }; };
   var DATE = function (k, label) { return { k: k, label: label, type: 'date' }; };
-  var TXT = function (k, label) { return { k: k, label: label, type: 'text' }; };
+  var TXT = function (k, label, req) { return { k: k, label: label, type: 'text', req: !!req }; };
   var EVENT = [DATE('date', '日期'), TXT('dx', '診斷'), TXT('hosp', '處理醫院')];
 
   window.ERAS_CARE_LIST = [
     /* ◎門診 */
-    I('op1',  '門診', ['ortho'],  '1.醫師說明 ERAS 療程', ['說明解釋', '手術風險評估']),
+    /* op1 的姓名、手術部位、手術醫師為院內收案通知所需，公告清單沒有這三欄 */
+    I('op1',  '門診', ['ortho'],  '1.醫師說明 ERAS 療程', ['說明解釋', '手術風險評估'],
+      [TXT('pname', '病人姓名', true), { k: 'site', label: '手術部位', type: 'select', options: ['右膝', '左膝', '雙膝'], req: true }, TXT('surgeon', '手術醫師', true)], true),
     I('op2',  '門診', ['cm'],     '2.ERAS 個管師教育與諮詢', ['完成說明流程']),
     I('op3',  '門診', ['ortho'],  '3.術前心肺功能評估', ['CxR', 'EKG']),
     I('op4',  '門診', ['ortho'],  '4.術前檢驗', ['CBC、BCS、PT、PTT、Albumin、HbA1C']),
