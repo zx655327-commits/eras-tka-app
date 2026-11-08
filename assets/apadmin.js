@@ -19,7 +19,8 @@
 
   function filtered() {
     var q = $('apq').value.trim().toUpperCase();
-    return A.list().filter(function (r) { return !q || (r.name + ' ' + r.mrn).toUpperCase().indexOf(q) >= 0; });
+    var tps = A.POINTS.map(function (t) { return t.id; });
+    return A.list().filter(function (r) { return tps.indexOf(r.tp) >= 0; }).filter(function (r) { return !q || (r.name + ' ' + r.mrn).toUpperCase().indexOf(q) >= 0; });
   }
 
   function render() {
@@ -39,7 +40,7 @@
       sb.appendChild(tr);
     });
 
-    /* 每位病人：三個時間點並列 */
+    /* 每位病人：各時間點並列 */
     var hr = $('tblAp').querySelector('thead tr'); hr.innerHTML = '';
     ['病歷號', '姓名', '門診日期'].forEach(function (h) { hr.appendChild(th(h)); });
     A.POINTS.forEach(function (t) { hr.appendChild(th(t.name + ' 焦慮', 'num')); hr.appendChild(th(t.name + ' 資訊', 'num')); hr.appendChild(th(t.name + ' 填寫時間')); });
@@ -89,7 +90,7 @@
     if (!CFG.demo || A.list().some(function (r) { return r.seed; })) return;
     var list = A.list(), now = Date.now();
     [
-      ['SIM0001', '模擬病人甲', 'T1', [3, 3, 4, 4, 3, 5], 400], ['SIM0001', '模擬病人甲', 'T2', [2, 2, 3, 3, 2, 3], 200], ['SIM0001', '模擬病人甲', 'T3', [1, 1, 2, 2, 1, 2], 20],
+      ['SIM0001', '模擬病人甲', 'T1', [3, 3, 4, 4, 3, 5], 400], ['SIM0001', '模擬病人甲', 'T2', [2, 2, 3, 3, 2, 3], 200],
       ['SIM0002', '模擬病人乙', 'T1', [4, 3, 5, 4, 4, 5], 300], ['SIM0002', '模擬病人乙', 'T2', [3, 3, 4, 4, 3, 4], 100]
     ].forEach(function (d) {
       var ans = {}; A.ITEMS.forEach(function (it, i) { ans[it.id] = d[3][i]; });

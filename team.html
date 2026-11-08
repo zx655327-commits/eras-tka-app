@@ -100,7 +100,7 @@
         <button type="button" class="btn ghost" id="btnCopyAp">複製 APAIS 結果（可貼到 Excel）</button>
       </div>
       <textarea id="copyBoxAp" class="copybox hidden" rows="5" readonly aria-label="複製內容"></textarea>
-      <p class="hint">APAIS 6 題，每題 1–5 分。焦慮分數＝第 1、2、4、5 題加總（4–20），≥ 11 分以紅字標示；資訊需求分數＝第 3、6 題加總（2–10）。中文題目採 Wu 等（2020）中文版，簡轉繁字形；臺灣使用授權、選項兩端文字及「出院前」時間點是否符合研究計畫，皆待確認。每位病人每個時間點只收一次，送出後不能修改。</p>
+      <p class="hint">APAIS 6 題，每題 1–5 分。焦慮分數＝第 1、2、4、5 題加總（4–20），≥ 11 分以紅字標示；資訊需求分數＝第 3、6 題加總（2–10）。中文題目採 Wu 等（2020）中文版，簡轉繁字形；臺灣使用授權、選項兩端文字待確認。每位病人每個時間點只收一次，送出後不能修改。</p>
       <h3 class="sec-h" style="margin-top:4px">各時間點統計</h3>
       <div class="table-wrap" style="margin-bottom:16px">
         <table class="grid" id="tblApSum">
@@ -108,7 +108,7 @@
           <tbody></tbody>
         </table>
       </div>
-      <h3 class="sec-h" style="margin-top:4px">每位病人三個時間點</h3>
+      <h3 class="sec-h" style="margin-top:4px">每位病人兩個時間點</h3>
       <div class="table-wrap">
         <table class="grid" id="tblAp">
           <thead><tr></tr></thead>
@@ -241,7 +241,7 @@
           <tr><td>主要項目已看</td><td>主線項目中觀看次數 ≥ 1 的項目數，除以主線項目總數。補充說明（分流）項目不列入分母。</td><td>由上述欄位計算</td></tr>
           <tr><td>ERAS 清單執行率</td><td>每個項目取最新一筆紀錄，狀態為「已執行」的項目數 ÷ 清單項目總數（關節置換術 47 項）。尚未紀錄的項目視為未執行。健保支付規範要求達 60% 以上；官方是否排除「不適用」項目，待確認。</td><td>ERAS 團隊照護紀錄</td></tr>
           <tr><td>滿意度平均分數</td><td>院內現行 ERAS 病人滿意度調查表，非常滿意 5 分～非常不滿意 1 分（網頁設定）。各題平均＝分數加總 ÷ 該題填答人數；「滿意＋非常滿意」比率＝選這兩項的人數 ÷ 該題填答人數。第 16 題僅曾有手術經驗者作答。每位病人（病歷號＋門診日期）保留最後一次填寫的答案。</td><td>病人端出院滿意度問卷</td></tr>
-          <tr><td>APAIS 焦慮／資訊需求分數</td><td>Amsterdam Preoperative Anxiety and Information Scale（Moerman et al., 1996）；中文題目採 Wu et al.（2020）。焦慮＝第 1、2、4、5 題加總（4–20），≥ 11 分為術前焦慮；資訊需求＝第 3、6 題加總（2–10）。時間點：門診後（T1）、入院後／手術前（T2）、出院前（T3）。統計以該時間點有完整 6 題的填答者為分母。</td><td>病人端 APAIS 量表</td></tr>
+          <tr><td>APAIS 焦慮／資訊需求分數</td><td>Amsterdam Preoperative Anxiety and Information Scale（Moerman et al., 1996）；中文題目採 Wu et al.（2020）。焦慮＝第 1、2、4、5 題加總（4–20），≥ 11 分為術前焦慮；資訊需求＝第 3、6 題加總（2–10）。時間點：門診後（T1）、手術前（T2）。統計以該時間點有完整 6 題的填答者為分母。</td><td>病人端 APAIS 量表</td></tr>
           <tr><td>同一位病人</td><td>病歷號＋門診日期相同，視為同一位病人，多次登入的紀錄會累加。</td><td>登入資料</td></tr>
         </tbody>
       </table>

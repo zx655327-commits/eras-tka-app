@@ -11,7 +11,7 @@
  *
  * 計分：每題 1–5 分。焦慮分量表＝第 1、2、4、5 題加總（4–20）；資訊需求分量表＝第 3、6 題加總（2–10）。
  *   焦慮 ≥ 11 分視為術前焦慮（Moerman 1996 建議；Wu 2020 沿用）。
- * 測量時間點（使用者 2026-11-08 指定，須與研究計畫核對）：門診後、入院後／手術前、出院前。
+ * 測量時間點（使用者 2026-11-08 指定，須與研究計畫核對）：門診後、手術前（2026-11-08 使用者改為兩個時間點，取消出院前）。
  */
 (function () {
   var KEY = 'eras_apais_v1';
@@ -27,8 +27,7 @@
   var ANX = ['a1', 'a2', 'a4', 'a5'], INFO = ['a3', 'a6'], CUT = 11;
   var POINTS = [
     { id: 'T1', name: '門診後', hint: '看完門診與衛教影片後填寫' },
-    { id: 'T2', name: '入院後／手術前', hint: '住院後、手術前填寫' },
-    { id: 'T3', name: '出院前', hint: '出院前填寫' }
+    { id: 'T2', name: '手術前', hint: '住院後、進手術室前填寫' }
   ];
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
   function save(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); return true; } catch (e) { return false; } }
