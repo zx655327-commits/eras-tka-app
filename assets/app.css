@@ -179,3 +179,13 @@ body { padding-bottom: 84px; }
 .sv-num { width: 6em; border: 2px solid #cbd5e1; border-radius: 10px; padding: 6px 10px; }
 .sv-other { flex: 1 1 100%; border: 2px solid #cbd5e1; border-radius: 10px; padding: 6px 10px; }
 #svTitle { font-size: 1.05em; }
+
+/* APAIS 術前心情量表 */
+.ap-card { border: 2px solid var(--teal-100); }
+.ap-card h3 { margin: 0 0 4px; }
+.ap-note { font-size: .85em; color: var(--muted); margin: 0 0 8px; }
+.ap-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+.ap-lab { display: flex; flex-direction: column; }
+.ap-lab span { font-size: .8em; color: var(--muted); }
+.ap-done .ap-lab span { color: var(--teal-700); font-weight: 700; }
+.ap-ok { color: var(--teal-700); font-weight: 900; font-size: 1.2em; padding-right: 8px; }

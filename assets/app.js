@@ -171,6 +171,7 @@
     if (n.tool === 'fasting') calcFasting();
     $('surveyCard').classList.toggle('hidden', !n.survey);
     if (n.survey && window.ERAS_SURVEY && window.ERAS_SURVEY.renderCard) window.ERAS_SURVEY.renderCard();
+    if (window.ERAS_APAIS && window.ERAS_APAIS.renderCard) window.ERAS_APAIS.renderCard();
 
     renderStages();
     renderToc();

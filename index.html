@@ -92,6 +92,11 @@
     </section>
 
     <aside style="display:flex;flex-direction:column;gap:16px">
+      <div class="card ap-card" id="apaisCard">
+        <h3>🩺 術前心情量表（APAIS）</h3>
+        <p class="ap-note">共 6 題，約 1 分鐘。請在下列三個時間各填一次。</p>
+        <div id="apaisPoints"></div>
+      </div>
       <div class="card hidden" id="toolFasting">
         <h3>術前禁食試算器</h3>
         <div class="tool">
@@ -174,6 +179,24 @@
   </div>
 
   <!-- 出院滿意度問卷 -->
+  <div id="apOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="apTitle">
+    <div class="login ask-box sv-box">
+      <div class="ask-head"><h1 id="apTitle">術前心情量表</h1><button type="button" class="ask-x" id="apClose" aria-label="關閉">✕</button></div>
+      <div id="apFormWrap">
+        <p class="sub sv-intro">請依照您現在的感受，選出最符合的數字。
+1＝完全沒有，5＝非常強烈。答案沒有對錯，送出後無法修改。</p>
+        <div id="apForm"></div>
+        <div class="err" id="apErr"></div>
+        <button type="button" class="btn-wide" id="apSubmit">送出</button>
+      </div>
+      <div id="apThanks" class="hidden ask-done">
+        <h2>已收到，謝謝您！</h2>
+        <p>如果您很擔心麻醉或手術，請直接告訴醫護人員，或按右下角「我有疑問」。</p>
+        <button type="button" class="btn-wide" id="apThanksClose">回到衛教影片</button>
+      </div>
+    </div>
+  </div>
+
   <div id="svOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="svTitle">
     <div class="login ask-box sv-box">
       <div class="ask-head"><h1 id="svTitle">出院滿意度問卷</h1><button type="button" class="ask-x" id="svClose" aria-label="關閉">✕</button></div>
@@ -198,6 +221,7 @@
   <script src="assets/questions.js"></script>
   <script src="assets/ask.js"></script>
   <script src="assets/survey.js"></script>
+  <script src="assets/apais.js"></script>
   <script src="assets/install.js"></script>
 </body>
 </html>

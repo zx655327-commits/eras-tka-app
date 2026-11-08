@@ -68,6 +68,7 @@
     if (r.admin && window.ERAS_ADMIN_REFRESH) window.ERAS_ADMIN_REFRESH();
     if (r.admin && window.ERAS_QADMIN) window.ERAS_QADMIN.refresh();
     if (r.admin && window.ERAS_SADMIN) window.ERAS_SADMIN.refresh();
+    if (r.admin && window.ERAS_APADMIN) window.ERAS_APADMIN.refresh();
     setTimeout(function () { $('careMrn').focus(); }, 50);
   }
 
