@@ -12,6 +12,8 @@
  * 計分：每題 1–5 分。焦慮分量表＝第 1、2、4、5 題加總（4–20）；資訊需求分量表＝第 3、6 題加總（2–10）。
  *   焦慮 ≥ 11 分視為術前焦慮（Moerman 1996 建議；Wu 2020 沿用）。
  * 測量時間點（使用者 2026-11-08 指定，須與研究計畫核對）：門診後、手術前（2026-11-08 使用者改為兩個時間點，取消出院前）。
+ * 前測（T1）須在研究衛教介入前完成，避免基線測量污染（2026-11-15 使用者指定）：
+ *   病人登入後若尚未完成 T1，先強制填寫，填完才開始播放衛教影片。
  */
 (function () {
   var KEY = 'eras_apais_v1';
@@ -26,7 +28,7 @@
   ];
   var ANX = ['a1', 'a2', 'a4', 'a5'], INFO = ['a3', 'a6'], CUT = 11;
   var POINTS = [
-    { id: 'T1', name: '門診後', hint: '看完門診與衛教影片後填寫' },
+    { id: 'T1', name: '門診後（衛教前）', hint: '登入後、觀看衛教影片前填寫' },
     { id: 'T2', name: '手術前', hint: '住院後、進手術室前填寫' }
   ];
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
@@ -41,8 +43,12 @@
     submit: function (p, tp, answers) {
       var list = load();
       if (list.some(function (r) { return r.patientKey === p.key && r.tp === tp; })) return false;
-      list.push({ patientKey: p.key, name: p.name, mrn: p.mrn, clinicDate: p.clinicDate, tp: tp, answers: answers,
-        submittedAt: new Date().toISOString(), simulated: !!(CFG.demo || p.simulated) });
+      var viewed = Object.keys(p.nodes || {}).some(function (k) { return p.nodes[k] && p.nodes[k].views > 0; });
+      var rec = { patientKey: p.key, name: p.name, mrn: p.mrn, clinicDate: p.clinicDate, tp: tp, answers: answers,
+        submittedAt: new Date().toISOString(), simulated: !!(CFG.demo || p.simulated) };
+      rec.anxietyTotal = sum(rec, ANX); rec.infoScore = sum(rec, INFO);
+      if (tp === 'T1') rec.preIntervention = !viewed; // 填寫前是否尚未觀看任何衛教
+      list.push(rec);
       return save(list);
     },
     anxiety: function (r) { return sum(r, ANX); },
@@ -94,11 +100,28 @@
       fs.appendChild(row); f.appendChild(fs);
     });
     $('apErr').textContent = '';
+    $('apIntro').textContent = '請依照您現在的感受，選出最符合的數字。\n1＝完全沒有，5＝非常強烈。答案沒有對錯，送出後無法修改。';
+    $('apThanksClose').textContent = '回到衛教影片';
     $('apFormWrap').classList.remove('hidden'); $('apThanks').classList.add('hidden');
     $('apOverlay').classList.remove('hidden');
     $('apOverlay').querySelector('.ask-box').scrollTop = 0;
   }
-  function close() { $('apOverlay').classList.add('hidden'); renderCard(); }
+  var gateDone = null; // 前測強制模式：填完才開始衛教
+  function close() {
+    if (gateDone && !A.get((Store.current() || {}).key, 'T1')) return; // 前測未完成不能關閉
+    $('apOverlay').classList.add('hidden'); $('apClose').classList.remove('hidden');
+    renderCard();
+    if (gateDone) { var f = gateDone; gateDone = null; f(); }
+  }
+  /* 登入後若尚未完成前測，先填 APAIS，填完再執行 onDone（開始衛教） */
+  A.needBaseline = function () { var p = Store.current(); return !!p && !A.get(p.key, 'T1'); };
+  A.gate = function (onDone) {
+    gateDone = onDone;
+    open(POINTS[0]);
+    $('apClose').classList.add('hidden');
+    $('apIntro').textContent = '開始觀看衛教影片之前，請先填寫這 6 題。\n請依照您現在的感受，選出最符合的數字。1＝完全沒有，5＝非常強烈。答案沒有對錯，送出後無法修改。';
+    $('apThanksClose').textContent = '開始觀看衛教影片';
+  };
 
   $('apForm').addEventListener('change', function (e) { var fs = e.target.closest('.sv-q'); if (fs) fs.classList.remove('sv-miss'); $('apErr').textContent = ''; });
   $('apClose').addEventListener('click', close);

@@ -58,7 +58,13 @@
     $('loginOverlay').classList.add('hidden');
     $('whoami').textContent = p.name + '｜門診日期 ' + p.clinicDate;
     var last = p.path.length ? p.path[p.path.length - 1].node : null;
-    goTo(last && NODES[last] ? last : ORDER[0], false);
+    var first = last && NODES[last] ? last : ORDER[0];
+    // APAIS 前測須在衛教介入前完成：未完成前不進入任何衛教項目（不播放、不計觀看）
+    if (window.ERAS_APAIS && window.ERAS_APAIS.gate && window.ERAS_APAIS.needBaseline()) {
+      window.ERAS_APAIS.gate(function () { goTo(first, false); });
+      return;
+    }
+    goTo(first, false);
   }
 
   /* ───────── 觀看時間計算 ─────────

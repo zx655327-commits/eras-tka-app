@@ -17,6 +17,7 @@
     return m.toFixed(2) + ' ± ' + sd.toFixed(2);
   }
 
+  function baseTxt(r) { return !r ? '' : (r.preIntervention === true ? '衛教前' : (r.preIntervention === false ? '⚠ 衛教後' : '未記錄')); }
   function filtered() {
     var q = $('apq').value.trim().toUpperCase();
     var tps = A.POINTS.map(function (t) { return t.id; });
@@ -42,7 +43,7 @@
 
     /* 每位病人：各時間點並列 */
     var hr = $('tblAp').querySelector('thead tr'); hr.innerHTML = '';
-    ['病歷號', '姓名', '門診日期'].forEach(function (h) { hr.appendChild(th(h)); });
+    ['病歷號', '姓名', '門診日期', '前測時機'].forEach(function (h) { hr.appendChild(th(h)); });
     A.POINTS.forEach(function (t) { hr.appendChild(th(t.name + ' 焦慮', 'num')); hr.appendChild(th(t.name + ' 資訊', 'num')); hr.appendChild(th(t.name + ' 填寫時間')); });
     var by = {};
     list.forEach(function (r) { (by[r.patientKey] = by[r.patientKey] || { r: r, tp: {} }).tp[r.tp] = r; });
@@ -50,6 +51,7 @@
     Object.keys(by).sort(function (a, b) { return by[a].r.mrn < by[b].r.mrn ? -1 : 1; }).forEach(function (k) {
       var g = by[k], tr = document.createElement('tr');
       tr.appendChild(td(g.r.mrn)); tr.appendChild(td(g.r.name + (g.r.simulated ? '［模擬］' : ''))); tr.appendChild(td(g.r.clinicDate || ''));
+      var bt = td(baseTxt(g.tp.T1)); if (g.tp.T1 && g.tp.T1.preIntervention === false) bt.className = 'sv-low'; tr.appendChild(bt);
       A.POINTS.forEach(function (t) {
         var r = g.tp[t.id];
         var a = r ? A.anxiety(r) : null, c = td(a, 'num');
@@ -69,13 +71,13 @@
   $('btnCopyAp').addEventListener('click', function () {
     var head = ['病歷號', '姓名', '門診日期', '時間點代碼', '時間點', '填寫時間'];
     A.ITEMS.forEach(function (it) { head.push('第' + it.no + '題'); });
-    head = head.concat(['焦慮分數(1,2,4,5)', '資訊需求分數(3,6)', '焦慮≥' + A.CUT, '模擬資料']);
+    head = head.concat(['焦慮總分(1,2,4,5)', '資訊需求分數(3,6)', '焦慮≥' + A.CUT, '前測於衛教前', '模擬資料']);
     var rows = [head];
     filtered().sort(function (a, b) { return a.mrn === b.mrn ? (a.tp < b.tp ? -1 : 1) : (a.mrn < b.mrn ? -1 : 1); }).forEach(function (r) {
       var row = [r.mrn, r.name, r.clinicDate, r.tp, tpName(r.tp), showIso(r.submittedAt)];
       A.ITEMS.forEach(function (it) { row.push(r.answers[it.id] || ''); });
       var a = A.anxiety(r);
-      rows.push(row.concat([a, A.info(r), a == null ? '' : (a >= A.CUT ? '是' : '否'), r.simulated ? '是' : '否']));
+      rows.push(row.concat([a, A.info(r), a == null ? '' : (a >= A.CUT ? '是' : '否'), r.tp === 'T1' ? (r.preIntervention === true ? '是' : (r.preIntervention === false ? '否' : '未記錄')) : '', r.simulated ? '是' : '否']));
     });
     var text = rows.map(function (x) { return x.map(function (c) { return String(c == null ? '' : c).replace(/[\t\n\r]/g, ' '); }).join('\t'); }).join('\n');
     var btn = this, orig = btn.textContent;
@@ -95,7 +97,7 @@
     ].forEach(function (d) {
       var ans = {}; A.ITEMS.forEach(function (it, i) { ans[it.id] = d[3][i]; });
       list.push({ patientKey: d[0] + '|sim', name: d[1], mrn: d[0], clinicDate: '', tp: d[2], answers: ans,
-        submittedAt: new Date(now - d[4] * 3600e3).toISOString(), simulated: true, seed: true });
+        submittedAt: new Date(now - d[4] * 3600e3).toISOString(), simulated: true, seed: true, preIntervention: d[2] === 'T1' ? true : undefined });
     });
     A._save(list);
   }
