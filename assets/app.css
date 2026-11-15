@@ -189,3 +189,10 @@ body { padding-bottom: 84px; }
 .ap-lab span { font-size: .8em; color: var(--muted); }
 .ap-done .ap-lab span { color: var(--teal-700); font-weight: 700; }
 .ap-ok { color: var(--teal-700); font-weight: 900; font-size: 1.2em; padding-right: 8px; }
+
+/* 行動檢核表 teach-back 完成判定 */
+.check-tip { font-size: .85em; color: var(--muted); margin: 0 0 8px; }
+.check.locked { opacity: .5; }
+.check-st { margin: 10px 0 0; font-weight: 800; color: var(--amber, #b45309); font-size: .9em; }
+.check-st.ok { color: var(--teal-700); }
+#toc .mk.part { color: var(--muted); }

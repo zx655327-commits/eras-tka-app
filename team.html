@@ -185,7 +185,7 @@
         <table class="grid" id="tblPatients">
           <thead><tr>
             <th>姓名</th><th>病歷號</th><th>門診日期</th><th>首次觀看</th><th>最後觀看</th>
-            <th class="num">登入次數</th><th class="num">主要項目已看</th><th class="num">總觀看時間</th><th></th>
+            <th class="num">登入次數</th><th class="num">主要項目已看</th><th class="num">主要項目已完成</th><th class="num">總觀看時間</th><th></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -196,7 +196,7 @@
         <div class="detail-head"><h3 id="detailTitle"></h3><button type="button" class="btn ghost" id="btnCloseDetail">關閉</button></div>
         <div class="table-wrap">
           <table class="grid" id="tblDetail">
-            <thead><tr><th>階段</th><th>項目</th><th>類型</th><th class="num">觀看次數</th><th class="num">觀看時間</th><th class="num">影片播放時間</th><th>最後觀看</th></tr></thead>
+            <thead><tr><th>階段</th><th>項目</th><th>類型</th><th class="num">觀看次數</th><th class="num">觀看時間</th><th class="num">影片播放時間</th><th>影片看完</th><th class="num">teach-back 勾選</th><th>完成</th><th>最後觀看</th></tr></thead>
             <tbody></tbody>
             <tfoot></tfoot>
           </table>
@@ -239,6 +239,7 @@
           <tr><td>影片播放時間</td><td>該項目影片實際播放的累計秒數（快轉跳過的部分不計）。</td><td>影片播放進度</td></tr>
           <tr><td>總觀看時間</td><td>同一位病人所有項目「觀看時間」的加總。</td><td>由上述欄位計算</td></tr>
           <tr><td>主要項目已看</td><td>主線項目中觀看次數 ≥ 1 的項目數，除以主線項目總數。補充說明（分流）項目不列入分母。</td><td>由上述欄位計算</td></tr>
+          <tr><td>主要項目已完成</td><td>主線項目中「完成」的項目數 ÷ 主線項目總數。完成＝影片播放到最後（多段影片須播完最後一段；影片無法播放時，聽完文字朗讀視同看完；無影片項目進入即算）<b>且</b>該項目「行動檢核表（teach-back）」全部打勾。檢核表要等影片看完才能勾選；取消任一勾選即恢復為未完成。</td><td>病人端影片播放結束事件、行動檢核表勾選</td></tr>
           <tr><td>ERAS 清單執行率</td><td>每個項目取最新一筆紀錄，狀態為「已執行」的項目數 ÷ 清單項目總數（關節置換術 47 項）。尚未紀錄的項目視為未執行。健保支付規範要求達 60% 以上；官方是否排除「不適用」項目，待確認。</td><td>ERAS 團隊照護紀錄</td></tr>
           <tr><td>滿意度平均分數</td><td>院內現行 ERAS 病人滿意度調查表，非常滿意 5 分～非常不滿意 1 分（網頁設定）。各題平均＝分數加總 ÷ 該題填答人數；「滿意＋非常滿意」比率＝選這兩項的人數 ÷ 該題填答人數。第 16 題僅曾有手術經驗者作答。每位病人（病歷號＋門診日期）保留最後一次填寫的答案。</td><td>病人端出院滿意度問卷</td></tr>
           <tr><td>APAIS 焦慮／資訊需求分數</td><td>Amsterdam Preoperative Anxiety and Information Scale（Moerman et al., 1996）；中文題目採 Wu et al.（2020）。焦慮＝第 1、2、4、5 題加總（4–20），≥ 11 分為術前焦慮；資訊需求＝第 3、6 題加總（2–10）。時間點：門診後（T1）、手術前（T2）。統計以該時間點有完整 6 題的填答者為分母。</td><td>病人端 APAIS 量表</td></tr>

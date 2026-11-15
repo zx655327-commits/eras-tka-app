@@ -80,6 +80,20 @@ window.ERAS_CONFIG = {
         n.last = nowIso();
       });
     },
+    /* 完成判定：看完影片（或無影片）＋行動檢核表（teach-back）全部打勾 */
+    setProgress: function (nodeId, fn) {
+      this._mutate(function (p) {
+        var n = p.nodes[nodeId] || (p.nodes[nodeId] = { views: 0, seconds: 0, videoSeconds: 0, first: nowIso(), last: null });
+        fn(n);
+        var need = (window.ERAS_NODES[nodeId] || {}).checklist || [];
+        var checksOk = need.every(function (_, i) { return n.checks && n.checks[i]; });
+        var done = !!n.videoDone && checksOk;
+        if (done && !n.done) n.doneAt = nowIso();
+        if (!done) n.doneAt = null;
+        n.done = done;
+      });
+    },
+    isDone: function (p, nodeId) { return !!(p && p.nodes[nodeId] && p.nodes[nodeId].done); },
     _mutate: function (fn) {
       var key = safeGet(SESSION_KEY);
       if (!key) return;

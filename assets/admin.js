@@ -51,6 +51,8 @@
       String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
   function seenMains(p) { return MAINS.filter(function (k) { return p.nodes[k] && p.nodes[k].views > 0; }).length; }
+  function doneMains(p) { return MAINS.filter(function (k) { return p.nodes[k] && p.nodes[k].done; }).length; }
+  function checkText(n, r) { var c = n.checklist || []; if (!c.length) return '—'; return c.filter(function (_, i) { return r.checks && r.checks[i]; }).length + ' / ' + c.length; }
   function td(text, cls) { var c = document.createElement('td'); c.textContent = text; if (cls) c.className = cls; return c; }
 
   function filtered() {
@@ -79,6 +81,7 @@
       tr.appendChild(td(dt(p.lastSeen)));
       tr.appendChild(td(p.logins, 'num'));
       tr.appendChild(td(seenMains(p) + ' / ' + MAINS.length, 'num'));
+      tr.appendChild(td(doneMains(p) + ' / ' + MAINS.length, 'num'));
       tr.appendChild(td(mmss(Store.totalSeconds(p)), 'num'));
       var act = document.createElement('td');
       var del = document.createElement('button'); del.className = 'btn ghost'; del.textContent = '刪除'; del.type = 'button';
@@ -95,10 +98,10 @@
 
   function renderKpis(list) {
     var total = list.reduce(function (s, p) { return s + Store.totalSeconds(p); }, 0);
-    var complete = list.filter(function (p) { return seenMains(p) === MAINS.length; }).length;
+    var complete = list.filter(function (p) { return doneMains(p) === MAINS.length; }).length;
     var items = [
       ['病人數', list.length],
-      ['看完全部主要項目', list.length ? complete + '（' + Math.round(complete / list.length * 100) + '%）' : '—'],
+      ['完成全部主要項目（影片＋teach-back）', list.length ? complete + '（' + Math.round(complete / list.length * 100) + '%）' : '—'],
       ['平均總觀看時間', list.length ? mmss(total / list.length) : '—'],
       ['主要項目數', MAINS.length]
     ];
@@ -126,13 +129,16 @@
       tr.appendChild(td(r.views, 'num'));
       tr.appendChild(td(mmss(r.seconds), 'num'));
       tr.appendChild(td(n.videos ? mmss(r.videoSeconds) : '無影片', 'num'));
+      tr.appendChild(td(n.videos ? (r.videoDone ? '是' : '否') : '無影片'));
+      tr.appendChild(td(checkText(n, r), 'num'));
+      tr.appendChild(td(r.done ? '✓ 完成' : (r.views ? '未完成' : '')));
       tr.appendChild(td(dt(r.last)));
       tb.appendChild(tr);
       sum.v += r.views; sum.s += r.seconds; sum.vs += r.videoSeconds;
     });
     var tf = $('tblDetail').querySelector('tfoot'); tf.innerHTML = '';
     var tr = document.createElement('tr');
-    [ '合計', '', '', sum.v, mmss(sum.s), mmss(sum.vs), '' ].forEach(function (x, i) { tr.appendChild(td(x, i >= 3 && i <= 5 ? 'num' : '')); });
+    [ '合計', '', '', sum.v, mmss(sum.s), mmss(sum.vs), '', '', '主要 ' + doneMains(p) + ' / ' + MAINS.length, '' ].forEach(function (x, i) { tr.appendChild(td(x, i >= 3 && i <= 5 ? 'num' : '')); });
     tf.appendChild(tr);
     $('detailCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -152,18 +158,18 @@
   }
   function stamp() { var d = new Date(); return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0'); }
   function sumRows() {
-    var rows = [[ '姓名', '病歷號', '門診日期', '首次觀看', '最後觀看', '登入次數', '主要項目已看數', '主要項目總數', '總觀看時間(秒)', '模擬資料' ]];
+    var rows = [[ '姓名', '病歷號', '門診日期', '首次觀看', '最後觀看', '登入次數', '主要項目已看數', '主要項目已完成數', '主要項目總數', '總觀看時間(秒)', '模擬資料' ]];
     filtered().forEach(function (p) {
-      rows.push([ p.name, p.mrn, p.clinicDate, dt(p.firstSeen), dt(p.lastSeen), p.logins, seenMains(p), MAINS.length, Math.round(Store.totalSeconds(p)), p.simulated ? '是' : '否' ]);
+      rows.push([ p.name, p.mrn, p.clinicDate, dt(p.firstSeen), dt(p.lastSeen), p.logins, seenMains(p), doneMains(p), MAINS.length, Math.round(Store.totalSeconds(p)), p.simulated ? '是' : '否' ]);
     });
     return rows;
   }
   function detailRows() {
-    var rows = [[ '姓名', '病歷號', '門診日期', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '最後觀看', '模擬資料' ]];
+    var rows = [[ '姓名', '病歷號', '門診日期', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '影片看完', 'teach-back 勾選', '項目完成', '完成時間', '最後觀看', '模擬資料' ]];
     filtered().forEach(function (p) {
       ORDER.forEach(function (k) {
         var n = NODES[k], r = p.nodes[k] || { views: 0, seconds: 0, videoSeconds: 0 };
-        rows.push([ p.name, p.mrn, p.clinicDate, stageName(n.stage), k, n.title, n.branch ? '補充說明' : '主線', r.views, Math.round(r.seconds), Math.round(r.videoSeconds), dt(r.last), p.simulated ? '是' : '否' ]);
+        rows.push([ p.name, p.mrn, p.clinicDate, stageName(n.stage), k, n.title, n.branch ? '補充說明' : '主線', r.views, Math.round(r.seconds), Math.round(r.videoSeconds), n.videos ? (r.videoDone ? '是' : '否') : '無影片', checkText(n, r), r.done ? '是' : '否', dt(r.doneAt), dt(r.last), p.simulated ? '是' : '否' ]);
       });
     });
     return rows;
@@ -206,6 +212,11 @@
         var views = 1 + (rnd() < 0.25 ? 1 : 0);
         var vlen = NODES[k].videos ? NODES[k].videos.length * 10 : 0;
         p.nodes[k] = { views: views, seconds: Math.round(15 + rnd() * 40) * views, videoSeconds: Math.round(vlen * (0.6 + rnd() * 0.4)) * views, first: p.firstSeen, last: p.lastSeen };
+        var r = p.nodes[k], cl = NODES[k].checklist || [];
+        r.videoDone = !NODES[k].videos || rnd() < 0.85;
+        r.checks = cl.map(function () { return r.videoDone && rnd() < (i === 1 ? 0.6 : 0.95); });
+        r.done = r.videoDone && r.checks.every(Boolean);
+        r.doneAt = r.done ? p.lastSeen : null;
       });
       return p;
     });

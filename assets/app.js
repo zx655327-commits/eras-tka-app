@@ -179,11 +179,11 @@
 
   function doneBox() {
     var p = Store.current();
-    var watched = ORDER.filter(function (k) { return NODES[k].main && p.nodes[k] && p.nodes[k].views > 0; }).length;
+    var watched = ORDER.filter(function (k) { return NODES[k].main && Store.isDone(p, k); }).length;
     var mains = ORDER.filter(function (k) { return NODES[k].main; }).length;
     var d = document.createElement('div');
     d.className = 'done-box card';
-    d.innerHTML = '<div class="big">恭喜完成衛教</div><div>主要項目已看 <b></b> / ' + mains + ' 項，累計觀看約 <b></b> 分鐘</div>' +
+    d.innerHTML = '<div class="big">恭喜完成衛教</div><div>主要項目已完成 <b></b> / ' + mains + ' 項，累計觀看約 <b></b> 分鐘</div>' +
       '<div style="font-size:.8em;color:var(--muted);margin-top:6px">可從右側目錄重看任何一段；有問題請聯絡個管師。</div>';
     var bs = d.querySelectorAll('b');
     bs[0].textContent = watched;
@@ -197,7 +197,7 @@
     $('stages').innerHTML = '';
     STAGES.forEach(function (s) {
       var mains = ORDER.filter(function (k) { return NODES[k].stage === s.id && NODES[k].main; });
-      var seen = mains.filter(function (k) { return p.nodes[k] && p.nodes[k].views > 0; }).length;
+      var seen = mains.filter(function (k) { return Store.isDone(p, k); }).length;
       var el = document.createElement('div');
       el.className = 'stage' + (s.id === cur ? ' active' : '');
       el.innerHTML = '<div class="bar"><i></i></div><span></span>';
@@ -215,9 +215,10 @@
       ORDER.filter(function (k) { return NODES[k].stage === s.id; }).forEach(function (k) {
         var li = document.createElement('li');
         li.className = (NODES[k].branch ? 'sub' : '') + (k === state.id ? ' cur' : '');
-        var seen = p.nodes[k] && p.nodes[k].views > 0;
+        var seen = p.nodes[k] && p.nodes[k].views > 0, fin = Store.isDone(p, k);
         li.innerHTML = '<span class="mk"></span><span></span>';
-        li.firstChild.textContent = seen ? '✓' : '';
+        li.firstChild.textContent = fin ? '✓' : (seen ? '…' : '');
+        if (seen && !fin) { li.firstChild.classList.add('part'); li.title = '已觀看，尚未完成影片或行動檢核表'; }
         li.lastChild.textContent = NODES[k].title;
         li.addEventListener('click', function () { if (k !== state.id) goTo(k); });
         ul.appendChild(li);
@@ -225,25 +226,49 @@
     });
   }
 
+  /* 影片看完（或沒有影片的項目進入即可）→ 才能勾選行動檢核表 → 全部勾選才算完成 */
+  function hasVideo(n) { return !!(n.videos && n.videos.length); }
+  function markVideoDone(id) {
+    var p = Store.current(); if (!p) return;
+    if (p.nodes[id] && p.nodes[id].videoDone) return;
+    Store.setProgress(id, function (r) { r.videoDone = true; });
+    if (id === state.id) { renderChecklist(NODES[id]); renderStages(); renderToc(); }
+  }
   function renderChecklist(n) {
-    var card = $('checkCard'), box = $('checklist');
+    var card = $('checkCard'), box = $('checklist'), st = $('checkStatus');
+    var p = Store.current(), id = state.id;
+    if (p && !hasVideo(n) && !(p.nodes[id] && p.nodes[id].videoDone)) {
+      Store.setProgress(id, function (r) { r.videoDone = true; }); p = Store.current();
+    }
+    var r = (p && p.nodes[id]) || {};
     if (!n.checklist || !n.checklist.length) { card.classList.add('hidden'); return; }
     card.classList.remove('hidden');
-    var p = Store.current();
-    var key = 'eras_check_' + (p ? p.key : '') + '_' + state.id;
-    var saved = [];
-    try { saved = JSON.parse(localStorage.getItem(key)) || []; } catch (e) {}
+    // 舊版勾選紀錄（另存的 key）併入
+    if (!r.checks && p) {
+      var old = null; try { old = JSON.parse(localStorage.getItem('eras_check_' + p.key + '_' + id)); } catch (e) {}
+      if (old && old.length) { Store.setProgress(id, function (x) { x.checks = old; }); p = Store.current(); r = p.nodes[id]; }
+    }
+    var saved = (r.checks || []).slice();
+    var open = !!r.videoDone;
     box.innerHTML = '';
+    var tip = document.createElement('p'); tip.className = 'check-tip';
+    tip.textContent = open ? '請試著用自己的話說出每一項（可以說給家人或醫護人員聽），做得到再打勾。' : '請先看完上方影片，再完成下列確認。';
+    box.appendChild(tip);
     n.checklist.forEach(function (text, i) {
-      var row = document.createElement('label'); row.className = 'check';
-      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!saved[i];
+      var row = document.createElement('label'); row.className = 'check' + (open ? '' : ' locked');
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!saved[i]; cb.disabled = !open;
       cb.addEventListener('change', function () {
         saved[i] = cb.checked;
-        try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e) {}
+        Store.setProgress(id, function (x) { x.checks = saved.slice(); });
+        renderChecklist(n); renderStages(); renderToc();
       });
       var sp = document.createElement('span'); sp.textContent = text;
       row.appendChild(cb); row.appendChild(sp); box.appendChild(row);
     });
+    var left = n.checklist.filter(function (_, i) { return !saved[i]; }).length;
+    if (r.done) { st.textContent = '✓ 本項衛教已完成'; st.className = 'check-st ok'; }
+    else if (!open) { st.textContent = '未完成：請先看完影片'; st.className = 'check-st'; }
+    else { st.textContent = '還有 ' + left + ' 項未打勾，全部打勾才算完成本項'; st.className = 'check-st'; }
   }
 
   /* ───────── 影片 ───────── */
@@ -276,6 +301,7 @@
   video.addEventListener('ended', function () {
     var n = NODES[state.id];
     if (n.videos && state.clip < n.videos.length - 1) loadClip(state.clip + 1, true);
+    else markVideoDone(state.id);
   });
   video.addEventListener('error', function () {
     // 影片載入失敗時改顯示文字與語音
@@ -295,7 +321,12 @@
     u.lang = 'zh-TW'; u.rate = state.rate;
     var v = speechSynthesis.getVoices().filter(function (x) { return /zh[-_]TW/i.test(x.lang); })[0];
     if (v) u.voice = v;
-    u.onend = u.onerror = function () { state.speaking = false; $('btnPlay').textContent = '▶ 朗讀'; };
+    var nodeAt = state.id;
+    u.onerror = function () { state.speaking = false; $('btnPlay').textContent = '▶ 朗讀'; };
+    u.onend = function () {
+      state.speaking = false; $('btnPlay').textContent = '▶ 朗讀';
+      if (video.classList.contains('hidden') && nodeAt === state.id) markVideoDone(nodeAt); // 影片無法播放時，聽完朗讀視同看完
+    };
     state.speaking = true; $('btnPlay').textContent = '■ 停止';
     speechSynthesis.speak(u);
   }
