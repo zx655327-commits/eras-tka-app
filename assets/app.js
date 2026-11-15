@@ -13,11 +13,15 @@
   }
   $('inDate').value = todayStr();
 
-  /* 外部試用版：只接受測試病歷號（trialMrn），不需輸入姓名與日期 */
+  /* 外部試用版：只需輸入病歷號，不需姓名與日期。trialMrn = '*' 表示任何病歷號都可登入（2026-11-15 使用者要求不限制），
+     其他值表示只接受該測試病歷號。 */
+  var anyMrn = CFG.trialMrn === '*';
   if (CFG.trialMrn) {
     ['inName', 'inDate'].forEach(function (id) { $(id).closest('.field').classList.add('hidden'); });
-    $('inMrn').placeholder = '請輸入試用病歷號';
-    $('privacyNote').innerHTML = '<strong>試用版：</strong>請輸入 ERAS 團隊提供的測試病歷號。紀錄只存在您這台裝置的瀏覽器，請勿輸入真實病人資料。';
+    $('inMrn').placeholder = anyMrn ? '請輸入病歷號（試用請用自編號碼）' : '請輸入試用病歷號';
+    $('privacyNote').innerHTML = anyMrn
+      ? '<strong>試用版：</strong>可輸入任何病歷號（英文字母或數字 4～20 碼），例如 12345。紀錄只存在您這台裝置的瀏覽器；請勿輸入真實病人的病歷號。'
+      : '<strong>試用版：</strong>請輸入 ERAS 團隊提供的測試病歷號。紀錄只存在您這台裝置的瀏覽器，請勿輸入真實病人資料。';
   }
   if (CFG.demo) $('lnkAdmin').classList.remove('hidden');
   if (CFG.demo && !CFG.trialMrn) {
@@ -34,12 +38,12 @@
   $('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
     if (CFG.trialMrn) {
-      if ($('inMrn').value.trim() !== CFG.trialMrn) { $('loginErr').textContent = '病歷號不正確，試用版請輸入 ERAS 團隊提供的測試病歷號。'; return; }
+      if (!anyMrn && $('inMrn').value.trim() !== CFG.trialMrn) { $('loginErr').textContent = '病歷號不正確，試用版請輸入 ERAS 團隊提供的測試病歷號。'; return; }
       $('inName').value = '測試病人'; $('inDate').value = todayStr();
     }
     var name = $('inName').value.trim(), mrn = $('inMrn').value.trim(), date = $('inDate').value;
     if (!name || !mrn || !date) { $('loginErr').textContent = '請完整填寫姓名、病歷號與門診日期。'; return; }
-    if (!/^[A-Za-z0-9-]{4,20}$/.test(mrn)) { $('loginErr').textContent = '病歷號格式不正確，請只輸入英文字母或數字。'; return; }
+    if (!/^[A-Za-z0-9-]{4,20}$/.test(mrn)) { $('loginErr').textContent = '病歷號格式不正確，請輸入 4～20 碼英文字母或數字。'; return; }
     Store.login(name, mrn, date);
     start();
   });
