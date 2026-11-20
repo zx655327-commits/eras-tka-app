@@ -206,6 +206,7 @@
     var cur = NODES[state.id].stage;
     $('stages').innerHTML = '';
     STAGES.forEach(function (s) {
+      if (s.extra) return; // 開場、結語不屬研究計畫之五個衛教階段，不顯示於進度條
       var mains = ORDER.filter(function (k) { return NODES[k].stage === s.id && NODES[k].main; });
       var seen = mains.filter(function (k) { return Store.isDone(p, k); }).length;
       var el = document.createElement('div');
@@ -228,7 +229,7 @@
         var seen = p.nodes[k] && p.nodes[k].views > 0, fin = Store.isDone(p, k);
         li.innerHTML = '<span class="mk"></span><span></span>';
         li.firstChild.textContent = fin ? '✓' : (seen ? '…' : '');
-        if (seen && !fin) { li.firstChild.classList.add('part'); li.title = '已觀看，尚未完成影片或行動檢核表'; }
+        if (seen && !fin) { li.firstChild.classList.add('part'); li.title = '已觀看，尚未完成影片或自我檢核'; }
         li.lastChild.textContent = NODES[k].title;
         li.addEventListener('click', function () { if (k !== state.id) goTo(k); });
         ul.appendChild(li);

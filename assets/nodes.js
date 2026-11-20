@@ -4,13 +4,16 @@
  * review: 'pending' 表示內容依步驟 1 待確認清單修改，尚待麻醉科／骨科／藥劑部確認。
  * 影片檔與 index.html 放在同一個資料夾。
  */
+/* 依研究計畫書（第一章第五節名詞定義、第三章第七節）之五個衛教階段（2026-11-20 調整）。
+ * 開場與結語不屬於五個衛教階段（extra: true），不列入進度條與「完成衛教單元數」。 */
 window.ERAS_STAGES = [
-  { id: 'intro',   name: '認識手術' },
-  { id: 'preop',   name: '術前準備' },
-  { id: 'day',     name: '手術當日' },
-  { id: 'intraop', name: '手術中' },
-  { id: 'postop',  name: '術後恢復' },
-  { id: 'home',    name: '出院' }
+  { id: 'intro',    name: '開場', extra: true },
+  { id: 'preop',    name: '一、術前準備', no: 1 },
+  { id: 'anes',     name: '二、麻醉與手術流程', no: 2 },
+  { id: 'pain',     name: '三、術後疼痛控制', no: 3 },
+  { id: 'mobility', name: '四、早期活動', no: 4 },
+  { id: 'home',     name: '五、復健及出院照護', no: 5 },
+  { id: 'end',      name: '結語', extra: true }
 ];
 
 window.ERAS_NODES = {
@@ -44,7 +47,7 @@ window.ERAS_NODES = {
     next: 'history'
   },
 
-  /* ───────── 術前準備 ───────── */
+  /* ───────── 一、術前準備 ───────── */
   history: {
     stage: 'preop', main: true, title: '過敏史與噁心嘔吐經驗要先說',
     videos: ['v/07.mp4'],
@@ -182,44 +185,43 @@ window.ERAS_NODES = {
     options: [ { label: '回到主線，繼續下一步', target: 'identity', primary: true } ]
   },
 
-  /* ───────── 手術當日 ───────── */
+  /* ───────── 二、麻醉與手術流程（原「手術當日」＋「手術中」） ───────── */
   identity: {
-    stage: 'day', main: true, title: '多次核對身分與手術部位',
+    stage: 'anes', main: true, title: '多次核對身分與手術部位',
     videos: ['v/10.mp4'],
     corePoint: '入院後與手術當日，醫護人員會多次核對您的姓名、手術部位與相關資料，這是保障安全的重要步驟。',
     next: 'surgery_day'
   },
   surgery_day: {
-    stage: 'day', main: true, title: '手術當日準備',
+    stage: 'anes', main: true, title: '手術當日準備',
     videos: ['v/11.mp4'],
     corePoint: '手術當日請更換病人服，取下假牙、飾品與指甲油。接近手術時間時，工作人員會協助您前往手術室。',
     checklist: [ '更換病人服', '取下假牙、飾品，卸除指甲油' ],
     next: 'ponv'
   },
   ponv: {
-    stage: 'day', main: true, title: '預防噁心嘔吐與保溫',
+    stage: 'anes', main: true, title: '預防噁心嘔吐與保溫',
     videos: ['v/12.mp4'],
     corePoint: '麻醉團隊會依您的風險安排保溫、止吐與止痛，讓您在安全中完成手術。',
     next: 'intraop'
   },
 
-  /* ───────── 手術中 ───────── */
   intraop: {
-    stage: 'intraop', main: true, title: '手術中的麻醉監測',
+    stage: 'anes', main: true, title: '手術中的麻醉監測',
     videos: ['v/13.mp4'],
     corePoint: '手術中，麻醉團隊會持續監測血壓、心跳、血氧與體溫，並依您的狀況調整照護。',
     next: 'discomfort'
   },
   discomfort: {
-    stage: 'intraop', main: true, title: '不舒服請主動告知',
+    stage: 'anes', main: true, title: '不舒服請主動告知',
     videos: ['v/14.mp4'],
     corePoint: '如果您感到緊張、冷、噁心、疼痛或任何不舒服，請主動告訴醫護人員，我們會協助您處理。',
     next: 'pain_intro'
   },
 
-  /* ───────── 術後恢復 ───────── */
+  /* ───────── 三、術後疼痛控制 ───────── */
   pain_intro: {
-    stage: 'postop', main: true, title: '止痛是為了能活動：多模式止痛',
+    stage: 'pain', main: true, title: '止痛是為了能活動：多模式止痛',
     videos: ['v/15.mp4', 'v/16.mp4'],
     corePoint: '止痛的目的是讓您能翻身、起床與活動。我們會合併多種止痛方式，減少副作用。',
     checklist: [
@@ -229,7 +231,7 @@ window.ERAS_NODES = {
     next: 'pain_assess'
   },
   pain_assess: {
-    stage: 'postop', main: true, title: '術後疼痛評估：0～10 分',
+    stage: 'pain', main: true, title: '術後疼痛評估：0～10 分',
     videos: ['v/17.mp4'],
     corePoint: '用 0～10 分告訴護理師您的疼痛：0 分是不痛，10 分是最痛。',
     question: '請點選您目前（或想了解）的疼痛分數：',
@@ -241,14 +243,14 @@ window.ERAS_NODES = {
     next: 'rehab'
   },
   pain_mild: {
-    stage: 'postop', branch: true, title: '輕度疼痛：維持規律用藥，把握復健時機',
+    stage: 'pain', branch: true, title: '輕度疼痛：維持規律用藥，把握復健時機',
     script: '您的疼痛控制在 3 分以下，代表多模式止痛效果很好。就算現在不太痛，常規止痛藥還是要依醫囑按時吃，才能維持穩定的止痛效果。現在正是練習勾腳踝與準備下床的好時機。',
     corePoint: '不太痛也要依醫囑按時吃常規止痛藥，把握時機開始活動。',
     checklist: [ '依醫囑按時服用常規止痛藥，不自行停藥', '活動後可冰敷膝關節周圍 15～20 分鐘' ],
     options: [ { label: '回到主線：復健運動', target: 'rehab', primary: true } ]
   },
   pain_moderate: {
-    stage: 'postop', branch: true, review: 'pending', title: '中度疼痛：請護理師評估追加止痛',
+    stage: 'pain', branch: true, review: 'pending', title: '中度疼痛：請護理師評估追加止痛',
     script: '如果疼痛到 4 到 6 分，已經影響睡覺或不敢彎膝蓋，請不要忍耐，請告訴護理師評估給予備用止痛藥，或依指導使用自控式止痛。在物理治療師帶您下床前，先處理好疼痛，復健會輕鬆很多。冰敷時請用乾毛巾包住冰袋，不要弄濕傷口敷料。',
     corePoint: '請告訴護理師評估備用止痛藥，特別是在下床復健前。',
     checklist: [
@@ -259,15 +261,16 @@ window.ERAS_NODES = {
     options: [ { label: '回到主線：復健運動', target: 'rehab', primary: true } ]
   },
   pain_severe: {
-    stage: 'postop', branch: true, review: 'pending', title: '劇痛或異常症狀：立即求助',
+    stage: 'pain', branch: true, review: 'pending', title: '劇痛或異常症狀：立即求助',
     script: '如果膝蓋痛到 7 分以上無法休息，或小腿肚單側腫脹劇痛、腳趾麻木動不了、傷口大量滲血，或突然胸痛、喘、呼吸急促，請先不要下床。住院中請立刻按呼叫鈴；如果已經出院，請立即撥打 119 或到急診。',
     corePoint: '先不要下床，住院中立即按鈴；出院後請撥 119 或立即就醫。',
     redFlag: '出現 7～10 分劇痛、小腿肚單側腫脹壓痛、腳背無法上勾或腳趾麻木冰冷、傷口大量滲血，或突然胸痛、喘、呼吸急促：住院中請立即按呼叫鈴；出院後請撥打 119 或立即到急診。',
     checklist: [ '立即告知醫護人員疼痛分數與伴隨症狀', '暫停下床，待醫護人員確認安全後再活動' ],
     options: [ { label: '了解了，回到主線：復健運動', target: 'rehab', primary: true } ]
   },
+  /* ───────── 四、早期活動 ───────── */
   rehab: {
-    stage: 'postop', main: true, review: 'pending', title: '床上復健運動與漸進式下床',
+    stage: 'mobility', main: true, review: 'pending', title: '床上復健運動與漸進式下床',
     videos: ['v/18.mp4'],
     tool: 'ankle',
     corePoint: '床上勤做踝幫浦運動預防血栓；下床前先坐床邊，確認不頭暈再站起來。',
@@ -284,7 +287,7 @@ window.ERAS_NODES = {
     next: 'walker'
   },
   dizzy: {
-    stage: 'postop', branch: true, review: 'pending', title: '術後頭暈：先躺下，防跌倒',
+    stage: 'mobility', branch: true, review: 'pending', title: '術後頭暈：先躺下，防跌倒',
     script: '坐起來覺得頭暈或冒冷汗，是手術後不少病人第一次下床時會遇到的情形。請不要勉強站起來，請家屬扶您慢慢躺回床上，把腳稍微墊高，深呼吸休息，並告訴護理師幫您量血壓。等完全不暈了，再請護理師陪您試一次。',
     corePoint: '立即躺回床上休息並告訴護理師量血壓，切勿勉強站立或獨自如廁。',
     redFlag: '坐起時若出現頭暈、冒冷汗、眼前發黑或噁心想吐，請勿勉強下床，立即躺下並通知護理師。',
@@ -295,7 +298,7 @@ window.ERAS_NODES = {
     ]
   },
   walker: {
-    stage: 'postop', main: true, title: '使用助行器安全行走',
+    stage: 'mobility', main: true, title: '使用助行器安全行走',
     videos: ['v/19.mp4'],
     corePoint: '口訣：助行器先往前放穩 → 開刀腳跨出 → 好腳跟上。轉彎用小碎步。',
     checklist: [
@@ -306,7 +309,7 @@ window.ERAS_NODES = {
     next: 'discharge'
   },
 
-  /* ───────── 出院 ───────── */
+  /* ───────── 五、復健及出院照護 ───────── */
   discharge: {
     stage: 'home', main: true, title: '出院衛教與傷口照護',
     videos: ['v/20.mp4'],
@@ -315,8 +318,9 @@ window.ERAS_NODES = {
     survey: true,
     next: 'closing'
   },
+  /* ───────── 結語（不屬五階段） ───────── */
   closing: {
-    stage: 'home', main: true, title: '一起邁向安全的康復',
+    stage: 'end', main: true, title: '一起邁向安全的康復',
     videos: ['v/21.mp4'],
     corePoint: '恭喜您看完全部衛教內容。醫療團隊會陪伴您安全、有計畫地恢復。',
     survey: true,

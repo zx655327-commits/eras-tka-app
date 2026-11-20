@@ -101,7 +101,7 @@
         MAINS.forEach(function (k) { if (v.nodes[k] && v.nodes[k].views > 0) seen[k] = 1; if (v.nodes[k] && v.nodes[k].done) fin[k] = 1; });
       });
       info.textContent = '門診日期 ' + visits.map(function (v) { return v.clinicDate; }).join('、') +
-        '｜衛教主要項目已看 ' + Object.keys(seen).length + '、已完成（影片＋teach-back）' + Object.keys(fin).length + ' / ' + MAINS.length +
+        '｜衛教主要項目已看 ' + Object.keys(seen).length + '、已完成（影片＋自我檢核）' + Object.keys(fin).length + ' / ' + MAINS.length +
         '｜總觀看時間 ' + Math.round(total / 60) + ' 分鐘';
     } else info.textContent = '這台裝置上沒有此病歷號的衛教觀看紀錄。';
     card.appendChild(info);

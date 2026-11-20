@@ -101,7 +101,7 @@
     var complete = list.filter(function (p) { return doneMains(p) === MAINS.length; }).length;
     var items = [
       ['病人數', list.length],
-      ['完成全部主要項目（影片＋teach-back）', list.length ? complete + '（' + Math.round(complete / list.length * 100) + '%）' : '—'],
+      ['完成全部主要項目（影片＋自我檢核）', list.length ? complete + '（' + Math.round(complete / list.length * 100) + '%）' : '—'],
       ['平均總觀看時間', list.length ? mmss(total / list.length) : '—'],
       ['主要項目數', MAINS.length]
     ];
@@ -165,7 +165,7 @@
     return rows;
   }
   function detailRows() {
-    var rows = [[ '姓名', '病歷號', '門診日期', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '影片看完', 'teach-back（病人自評）', '項目完成', '完成時間', '最後觀看', '模擬資料' ]];
+    var rows = [[ '姓名', '病歷號', '門診日期', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '影片看完', '自我檢核（病人自評）', '項目完成', '完成時間', '最後觀看', '模擬資料' ]];
     filtered().forEach(function (p) {
       ORDER.forEach(function (k) {
         var n = NODES[k], r = p.nodes[k] || { views: 0, seconds: 0, videoSeconds: 0 };

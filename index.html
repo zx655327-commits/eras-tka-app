@@ -92,11 +92,6 @@
     </section>
 
     <aside style="display:flex;flex-direction:column;gap:16px">
-      <div class="card ap-card" id="apaisCard">
-        <h3>🩺 術前心情量表（APAIS）</h3>
-        <p class="ap-note">共 6 題，約 1 分鐘。請在下列兩個時間各填一次。</p>
-        <div id="apaisPoints"></div>
-      </div>
       <div class="card hidden" id="toolFasting">
         <h3>術前禁食試算器</h3>
         <div class="tool">
@@ -115,7 +110,7 @@
       </div>
 
       <div class="card hidden" id="checkCard">
-        <h3>我的行動檢核表（teach-back）</h3>
+        <h3>我的自我檢核（病人自評）</h3>
         <div id="checklist"></div>
         <p class="check-st" id="checkStatus"></p>
       </div>
@@ -218,7 +213,6 @@
   <script src="assets/nodes.js"></script>
   <script src="assets/store.js"></script>
   <script>window.ERAS_CONFIG.demo = true; window.ERAS_CONFIG.trialMrn = '*'; window.ERAS_CONFIG.hidePins = true;</script>
-  <script src="assets/apais.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/questions.js"></script>
   <script src="assets/ask.js"></script>

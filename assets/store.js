@@ -80,7 +80,7 @@ window.ERAS_CONFIG = {
         n.last = nowIso();
       });
     },
-    /* 完成判定：看完影片（或無影片）＋行動檢核表（teach-back）全部打勾 */
+    /* 完成判定：看完影片（或無影片）＋自我檢核（病人自評，非 teach-back）全部打勾 */
     setProgress: function (nodeId, fn) {
       this._mutate(function (p) {
         var n = p.nodes[nodeId] || (p.nodes[nodeId] = { views: 0, seconds: 0, videoSeconds: 0, first: nowIso(), last: null });
