@@ -1,5 +1,5 @@
-/* ERAS 膝衛教 App：離線快取（自動產生，版本 f4b63d1b） */
-var CACHE = 'eras-tka-f4b63d1b';
+/* ERAS 膝衛教 App：離線快取（自動產生，版本 560e39a8） */
+var CACHE = 'eras-tka-560e39a8';
 var SHELL = ["./", "index.html", "team.html", "manifest.webmanifest", "assets/admin.css", "assets/admin.js", "assets/apadmin.js", "assets/apais.js", "assets/app.css", "assets/app.js", "assets/ask.js", "assets/care_items.js", "assets/install.js", "assets/nodes.js", "assets/notices.js", "assets/qadmin.js", "assets/questions.js", "assets/research.js", "assets/sadmin.js", "assets/store.js", "assets/survey.js", "assets/teachback.js", "assets/team.js", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png"];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));

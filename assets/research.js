@@ -1,6 +1,8 @@
 /*
  * 研究資料（ERAS 個管師）：依 11/19 論文計畫書第三章第七節之三
- *   App 使用情形（T0–T1）：各衛教階段影片播放次數、觀看日期數、首次／最後觀看、完成單元數、再次衛教次數
+ *   App 使用情形（T0–T1）：各衛教階段影片播放次數、觀看日期數、首次／最後觀看、完成單元數、再次衛教（自主複習）次數
+ *   再次衛教（自主複習）次數（使用者 2026-11-21 決定：教導病人或家屬可於任何時間、不限次數回 App 複習）：
+ *     各衛教項目第 2 次以後的觀看＝複習 1 次；有影片的項目以影片從頭播放次數計，無影片的項目以進入次數計。
  *   衛教理解達成率：首次通過率、再次衛教後達成率（teach-back 查核表，分母 15）
  * 一列＝一個病歷號（同病歷號多次登入合併）。去識別化版本只輸出研究編號。
  * ※ 資料僅存在本裝置 localStorage；正式收案需院內伺服器（資訊室／IRB 核准）。
@@ -23,7 +25,7 @@
     var tball = TB ? TB.all() : {};
     Object.keys(tball).forEach(function (m) { if (!by[m]) by[m] = []; });
     return Object.keys(by).sort().map(function (mrn) {
-      var vs = by[mrn], plays = {}, dates = {}, done = {}, first = '', last = '', sim = false, name = '';
+      var vs = by[mrn], plays = {}, dates = {}, done = {}, first = '', last = '', sim = false, name = '', review = 0, cnt = {};
       STAGES.forEach(function (s) { plays[s.id] = 0; });
       vs.forEach(function (v) {
         name = name || v.name; sim = sim || !!v.simulated;
@@ -32,10 +34,13 @@
         Object.keys(v.nodes || {}).forEach(function (k) {
           var r = v.nodes[k], n = NODES[k]; if (!r || !n) return;
           if (plays[n.stage] != null) plays[n.stage] += (r.plays || 0);
+          var c = (n.videos && n.videos.length && r.plays != null) ? r.plays : (r.views || 0);
+          cnt[k] = (cnt[k] || 0) + c;
           (r.playDates || []).forEach(function (d) { dates[d] = 1; });
           if (n.main && r.done) done[k] = 1;
         });
       });
+      Object.keys(cnt).forEach(function (k) { if (cnt[k] > 1) review += cnt[k] - 1; });
       var stDone = STAGES.filter(function (s) {
         var ms = MAINS.filter(function (k) { return NODES[k].stage === s.id; });
         return ms.length && ms.every(function (k) { return done[k]; });
@@ -43,7 +48,7 @@
       var t = TB ? TB.get(mrn) : { studyId: '', items: {} }, sm = TB ? TB.summary(mrn) : null;
       if (tball[mrn] && tball[mrn].simulated) sim = true;
       return { mrn: mrn, name: name, studyId: t.studyId || '', plays: plays, nDates: Object.keys(dates).length,
-        first: first, last: last, doneItems: Object.keys(done).length, doneStages: stDone, sm: sm, sim: sim };
+        first: first, last: last, review: review, reviewDays: Math.max(Object.keys(dates).length - 1, 0), doneItems: Object.keys(done).length, doneStages: stDone, sm: sm, sim: sim };
     });
   }
 
@@ -51,14 +56,14 @@
     var h = withId ? ['病歷號', '姓名', '研究編號'] : ['研究編號'];
     STAGES.forEach(function (s, i) { h.push('第' + (i + 1) + '階段影片播放次數'); });
     return h.concat(['影片播放總次數', '觀看日期數', '首次觀看', '最後觀看', '完成主要項目數(/' + MAINS.length + ')', '完成衛教階段數(/' + STAGES.length + ')',
-      'teach-back 已評估項目數(/15)', '首次通過項目數', '首次通過率(%)', '再次衛教後已理解項目數', '再次衛教後達成率(%)', '未評估項目數', '尚未填寫項目數', '再次衛教次數', '模擬資料']);
+      'teach-back 已評估項目數(/15)', '首次通過項目數', '首次通過率(%)', '再次衛教後已理解項目數', '再次衛教後達成率(%)', '未評估項目數', '尚未填寫項目數', 'teach-back 再次評估項目數', '再次衛教（自主複習）次數', '複習日數（首日以外）', '模擬資料']);
   }
   function line(r, withId) {
     var a = withId ? [r.mrn, r.name, r.studyId] : [r.studyId || '（未填）'];
     var tot = 0; STAGES.forEach(function (s) { a.push(r.plays[s.id]); tot += r.plays[s.id]; });
     var sm = r.sm || {};
     return a.concat([tot, r.nDates, showIso(r.first), showIso(r.last), r.doneItems, r.doneStages,
-      sm.assessed || 0, sm.first || 0, sm.n ? pct(sm.firstRate) : '', sm.final || 0, sm.n ? pct(sm.finalRate) : '', sm.notAssessed || 0, sm.blank == null ? '' : sm.blank, sm.reedu || 0, r.sim ? '是' : '否']);
+      sm.assessed || 0, sm.first || 0, sm.n ? pct(sm.firstRate) : '', sm.final || 0, sm.n ? pct(sm.finalRate) : '', sm.notAssessed || 0, sm.blank == null ? '' : sm.blank, sm.reedu || 0, r.review, r.reviewDays, r.sim ? '是' : '否']);
   }
 
   function render() {

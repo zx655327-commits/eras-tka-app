@@ -7,7 +7,8 @@
  *                   再次衛教後達成率＝最後評估為已理解之項目數 ÷ 15 × 100%；
  *                   未評估項目不視為已理解、不自分母排除，另列數量與原因。
  *   App 內病人的勾選式自我檢核屬病人自評，不納入本達成率。
- * ※ 每階段第 1 項為計畫書所列核心問題舉例；第 2、3 項計畫書尚未列出，待專家內容效度審查（CVI）後填入。
+ * ※ 每階段第 1 項為計畫書所列核心問題舉例；第 2、3 項為 2026-11-21 依 App 衛教內容撰寫之草案（使用者同意寫入計畫書），
+ *   須經專家內容效度審查（CVI）後定稿，畫面標示「草案」。
  */
 (function () {
   var KEY = 'eras_teachback_v1';
@@ -20,10 +21,18 @@
     s4: '術後早期下床與使用助行器時需要注意什麼？',
     s5: '出院後出現哪些情形需要回診或求助？'
   };
+  var Q23 = { /* 草案：待 CVI */
+    s1: ['手術前需要主動告訴醫護人員哪些用藥或身體狀況？', '手術前您可以先做哪些準備，幫助術後恢復？'],
+    s2: ['為什麼醫護人員會多次核對您的身分與手術部位？', '手術中或麻醉醒來時，如果覺得冷、噁心、疼痛或其他不舒服，您可以怎麼做？'],
+    s3: ['請用 0～10 分說說看，疼痛幾分時要告訴護理師？出現哪些情形要立即求助？', '為什麼術後要把疼痛控制好？'],
+    s4: ['在床上可以做什麼運動預防血栓？請示範一次。', '您的負重指示是什麼？下床時如何預防跌倒？'],
+    s5: ['回家後每天要做哪些復健運動？運動時要注意什麼？', '傷口要怎麼照顧？什麼時候回診？']
+  };
   var ITEMS = [];
   STAGES.forEach(function (s) {
     [1, 2, 3].forEach(function (n) {
-      ITEMS.push({ id: s.id + '_' + n, stage: s.id, no: n, text: n === 1 ? (Q1[s.id] || PENDING) : PENDING, pending: n !== 1 || !Q1[s.id] });
+      var t = n === 1 ? Q1[s.id] : (Q23[s.id] || [])[n - 2];
+      ITEMS.push({ id: s.id + '_' + n, stage: s.id, no: n, text: t || PENDING, pending: !t, draft: n !== 1 && !!t });
     });
   });
   var RESULTS = ['已理解', '部分理解', '尚未理解', '未評估'];
@@ -95,7 +104,7 @@
     box.innerHTML = '';
     var r = T.get(mrn), sm = T.summary(mrn);
     box.appendChild(el('h3', 'sec-h', 'Teach-back 理解查核表（ERAS 個管師）'));
-    box.appendChild(el('p', 'hint', '各衛教階段完成後，請病人（必要時含主要照顧者）以自己的話說明，依判準評為已理解、部分理解或尚未理解。部分理解或尚未理解者，以標準化補充說明並提供再次觀看後，填寫「再次評估」。無法評估者選「未評估」並填寫原因。病人在 App 內的自我檢核不列入本達成率。'));
+    box.appendChild(el('p', 'hint', '各衛教階段完成後，請病人（必要時含主要照顧者）以自己的話說明，依判準評為已理解、部分理解或尚未理解。部分理解或尚未理解者，以標準化補充說明並提供再次觀看後，填寫「再次評估」。無法評估者選「未評估」並填寫原因。病人在 App 內的自我檢核不列入本達成率。教導時請告知病人與家屬：任何時間、不限次數都可以回 App 複習。'));
 
     var idRow = el('div', 'ci-form');
     idRow.appendChild(el('span', 'ci-time-label', '研究編號'));
@@ -108,7 +117,7 @@
 
     var kp = el('div', 'tb-kpis');
     [['首次通過率', pct(sm.firstRate) + '（' + sm.first + ' / ' + sm.n + '）'], ['再次衛教後達成率', pct(sm.finalRate) + '（' + sm.final + ' / ' + sm.n + '）'],
-     ['未評估（已記錄原因）', sm.notAssessed + ' 項'], ['尚未填寫', sm.blank + ' 項'], ['再次衛教', sm.reedu + ' 項']].forEach(function (x) {
+     ['未評估（已記錄原因）', sm.notAssessed + ' 項'], ['尚未填寫', sm.blank + ' 項'], ['再次評估', sm.reedu + ' 項']].forEach(function (x) {
       var d = el('div', 'kpi'); d.appendChild(el('div', 'v', x[1])); d.appendChild(el('div', 'l', x[0])); kp.appendChild(d);
     });
     box.appendChild(kp);
@@ -122,7 +131,7 @@
       ITEMS.filter(function (x) { return x.stage === s.id; }).forEach(function (x, i) {
         var it = r.items[x.id] || {}, tr = el('tr');
         if (i === 0) { var c = el('td', 'tb-stage', '第' + '一二三四五'[si] + '階段\n' + s.name); c.rowSpan = 3; tr.appendChild(c); }
-        tr.appendChild(el('td', 'wrap' + (x.pending ? ' tb-pending' : ''), x.no + '. ' + x.text));
+        tr.appendChild(el('td', 'wrap' + (x.pending ? ' tb-pending' : ''), x.no + '. ' + x.text + (x.draft ? '（草案，待 CVI）' : '')));
         var f = sel(it.first && it.first.result), needSecond = function () { return f.value === '部分理解' || f.value === '尚未理解'; };
         var sc = sel(it.second && it.second.result, !needSecond());
         var note = el('input'); note.type = 'text'; note.maxLength = 100; note.value = (it.second && it.second.note) || (it.first && it.first.note) || '';
