@@ -204,3 +204,10 @@ body { padding-bottom: 84px; }
 .prog-row.done .prog-h span { color: var(--teal-700); font-weight: 800; }
 .prog-left { margin: 4px 0 0; padding-left: 1.2em; font-size: .85em; color: var(--muted); }
 .prog-left li { cursor: pointer; text-decoration: underline dotted; margin: 2px 0; }
+
+/* 常見疑問 */
+.faq{margin:12px 0;display:flex;flex-direction:column;gap:8px}
+.faq details{border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 14px}
+.faq summary{cursor:pointer;font-weight:700;padding:12px 0;line-height:1.5;color:#1f3b57}
+.faq details[open] summary{border-bottom:1px dashed var(--line)}
+.faq details p{margin:10px 0 14px;line-height:1.75}
