@@ -59,7 +59,7 @@
     state.role = r;
     $('pinOverlay').classList.add('hidden');
     $('whoRole').textContent = '目前職類：' + r.name;
-    document.querySelectorAll('.tab.adm').forEach(function (t) { t.classList.toggle('hidden', !r.admin); });
+    document.querySelectorAll('.tab.adm').forEach(function (t) { t.classList.toggle('hidden', !r.admin || t.classList.contains('off')); });
     var careTab = document.querySelector('.tab[data-tab=care]');
     if (careTab) careTab.click();
     if (CFG.demo) seedCare();
@@ -69,6 +69,7 @@
     if (r.admin && window.ERAS_QADMIN) window.ERAS_QADMIN.refresh();
     if (r.admin && window.ERAS_SADMIN) window.ERAS_SADMIN.refresh();
     if (r.admin && window.ERAS_APADMIN) window.ERAS_APADMIN.refresh();
+    if (r.admin && window.ERAS_RESEARCH) window.ERAS_RESEARCH.refresh();
     setTimeout(function () { $('careMrn').focus(); }, 50);
   }
 
@@ -119,6 +120,7 @@
     var sc = $('careScopeWrap'); if (sc) sc.classList.toggle('hidden', !!state.role.admin);
     renderItems();
     renderTimeline();
+    if (window.ERAS_TEACHBACK && window.ERAS_TEACHBACK.render) window.ERAS_TEACHBACK.render(state.mrn, !!state.role.admin);
   }
 
   /* ───────── 照護項目（健保 ERAS 執行項目清單） ───────── */

@@ -206,15 +206,43 @@
     var cur = NODES[state.id].stage;
     $('stages').innerHTML = '';
     STAGES.forEach(function (s) {
-      if (s.extra) return; // 開場、結語不屬研究計畫之五個衛教階段，不顯示於進度條
+      if (s.extra) return; // 開場、結語不屬五個衛教階段
       var mains = ORDER.filter(function (k) { return NODES[k].stage === s.id && NODES[k].main; });
       var seen = mains.filter(function (k) { return Store.isDone(p, k); }).length;
       var el = document.createElement('div');
       el.className = 'stage' + (s.id === cur ? ' active' : '');
       el.innerHTML = '<div class="bar"><i></i></div><span></span>';
       el.querySelector('i').style.width = (mains.length ? seen / mains.length * 100 : 0) + '%';
-      el.querySelector('span').textContent = s.name;
+      el.querySelector('span').textContent = (mains.length && seen === mains.length ? '✓ ' : '') + s.name;
       $('stages').appendChild(el);
+    });
+    renderProgress(p);
+  }
+
+  /* 我的學習進度：各階段完成數與尚待完成之項目（11/19 計畫書：病人端可查看已完成之階段及尚待確認之項目） */
+  function renderProgress(p) {
+    var box = $('progList'); if (!box) return;
+    box.innerHTML = '';
+    window.ERAS_EDU_STAGES.forEach(function (s, i) {
+      var mains = ORDER.filter(function (k) { return NODES[k].stage === s.id && NODES[k].main; });
+      var fin = mains.filter(function (k) { return Store.isDone(p, k); });
+      var row = document.createElement('div'); row.className = 'prog-row' + (fin.length === mains.length ? ' done' : '');
+      var h = document.createElement('div'); h.className = 'prog-h';
+      h.innerHTML = '<b></b><span></span>';
+      h.firstChild.textContent = '第' + '一二三四五'[i] + '階段　' + s.name;
+      h.lastChild.textContent = fin.length === mains.length ? '✓ 已完成' : fin.length + ' / ' + mains.length;
+      row.appendChild(h);
+      var left = mains.filter(function (k) { return !Store.isDone(p, k); });
+      if (left.length) {
+        var ul = document.createElement('ul'); ul.className = 'prog-left';
+        left.forEach(function (k) {
+          var li = document.createElement('li'); li.textContent = NODES[k].title;
+          li.addEventListener('click', function () { if (k !== state.id) goTo(k); });
+          ul.appendChild(li);
+        });
+        row.appendChild(ul);
+      }
+      box.appendChild(row);
     });
   }
 
@@ -263,7 +291,7 @@
     var open = !!r.videoDone;
     box.innerHTML = '';
     var tip = document.createElement('p'); tip.className = 'check-tip';
-    tip.textContent = open ? '請試著用自己的話說出每一項（可以說給家人或醫護人員聽），做得到再打勾。' : '請先看完上方影片，再完成下列確認。';
+    tip.textContent = open ? '請想一想自己是否了解下列每一項（可以試著用自己的話說給家人聽），了解了再打勾。' : '請先看完上方影片，再完成下列自我檢核。';
     box.appendChild(tip);
     n.checklist.forEach(function (text, i) {
       var row = document.createElement('label'); row.className = 'check' + (open ? '' : ' locked');
@@ -280,6 +308,7 @@
     if (r.done) { st.textContent = '✓ 本項衛教已完成'; st.className = 'check-st ok'; }
     else if (!open) { st.textContent = '未完成：請先看完影片'; st.className = 'check-st'; }
     else { st.textContent = '還有 ' + left + ' 項未打勾，全部打勾才算完成本項'; st.className = 'check-st'; }
+    // 本頁自我檢核屬病人自評；teach-back 由 ERAS 個管師另行確認（團隊端理解查核表）
   }
 
   /* ───────── 影片 ───────── */
@@ -308,7 +337,14 @@
     track.lastActivity = Date.now();
   });
   video.addEventListener('pause', function () { track.lastVideoTime = null; $('btnPlay').textContent = '▶ 播放'; });
-  video.addEventListener('play', function () { $('btnPlay').textContent = '❚❚ 暫停'; });
+  video.addEventListener('play', function () {
+    $('btnPlay').textContent = '❚❚ 暫停';
+    // 影片觀看次數：從第一段開頭開始播放算一次，並記錄觀看日期（App 使用紀錄）
+    if (state.clip === 0 && video.currentTime < 1) {
+      var d = new Date(), day = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      Store.setProgress(state.id, function (r) { r.plays = (r.plays || 0) + 1; r.playDates = r.playDates || []; if (r.playDates.indexOf(day) < 0) r.playDates.push(day); });
+    }
+  });
   video.addEventListener('ended', function () {
     var n = NODES[state.id];
     if (n.videos && state.clip < n.videos.length - 1) loadClip(state.clip + 1, true);

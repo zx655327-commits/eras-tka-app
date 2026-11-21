@@ -3,6 +3,12 @@
   var A = window.ERAS_APAIS, CFG = window.ERAS_CONFIG;
   var $ = function (id) { return document.getElementById(id); };
   if (!A || !$('tblApSum')) return;
+  if (!CFG.apais) { /* 11/19 計畫書不再以 App 施測 APAIS：隱藏分頁 */
+    var tb = document.querySelector('.tab[data-tab=apais]'); if (tb) tb.classList.add('hidden', 'off');
+    var dr = document.getElementById('defApais'); if (dr) dr.classList.add('hidden');
+    window.ERAS_APADMIN = { refresh: function () {} };
+    return;
+  }
   function pad(n) { return String(n).padStart(2, '0'); }
   function showIso(iso) { if (!iso) return ''; var d = new Date(iso); return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   function td(t, cls) { var c = document.createElement('td'); c.textContent = t == null ? '' : t; if (cls) c.className = cls; return c; }

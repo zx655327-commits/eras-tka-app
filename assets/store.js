@@ -13,7 +13,8 @@
 window.ERAS_CONFIG = {
   apiBase: '',          // 例：'https://院內伺服器/eras-api'；空白＝只存本機
   adminPin: '0000',     // 測試用後台密碼，正式上線前務必改由伺服器驗證
-  idleSeconds: 180      // 超過這段時間沒有操作且影片未播放，就不再累計觀看時間
+  idleSeconds: 180,     // 超過這段時間沒有操作且影片未播放，就不再累計觀看時間
+  apais: false          // 11/19 計畫書改以紙本 VAS-A 於 T0／T1 由施測人員測量，App 不再施測 APAIS；設 true 可恢復
 };
 
 (function () {
@@ -80,7 +81,7 @@ window.ERAS_CONFIG = {
         n.last = nowIso();
       });
     },
-    /* 完成判定：看完影片（或無影片）＋自我檢核（病人自評，非 teach-back）全部打勾 */
+    /* 完成判定：看完影片（或無影片）＋理解自我檢核全部打勾（病人自評） */
     setProgress: function (nodeId, fn) {
       this._mutate(function (p) {
         var n = p.nodes[nodeId] || (p.nodes[nodeId] = { views: 0, seconds: 0, videoSeconds: 0, first: nowIso(), last: null });

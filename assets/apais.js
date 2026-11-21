@@ -59,7 +59,15 @@
   window.ERAS_APAIS = A;
 
   /* ───────── 病人端（只有病人頁有 #apaisCard 時執行） ───────── */
+  A.enabled = !!CFG.apais;
   if (!document.getElementById('apaisCard')) return;
+  if (!A.enabled) {
+    /* 11/19 計畫書：焦慮改以紙本 VAS-A 測量，App 不施測，也不在衛教前攔截 */
+    document.getElementById('apaisCard').classList.add('hidden');
+    A.needBaseline = function () { return false; };
+    A.renderCard = function () {};
+    return;
+  }
   var Store = window.ERAS_STORE;
   var $ = function (id) { return document.getElementById(id); };
   function mk(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }

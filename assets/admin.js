@@ -165,7 +165,7 @@
     return rows;
   }
   function detailRows() {
-    var rows = [[ '姓名', '病歷號', '門診日期', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '影片看完', '自我檢核（病人自評）', '項目完成', '完成時間', '最後觀看', '模擬資料' ]];
+    var rows = [[ '姓名', '病歷號', '門診日期', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '影片看完', '理解自我檢核（病人自評）', '項目完成', '完成時間', '最後觀看', '模擬資料' ]];
     filtered().forEach(function (p) {
       ORDER.forEach(function (k) {
         var n = NODES[k], r = p.nodes[k] || { views: 0, seconds: 0, videoSeconds: 0 };
@@ -217,10 +217,12 @@
         r.checks = cl.map(function () { return r.videoDone && rnd() < (i === 1 ? 0.6 : 0.95); });
         r.done = r.videoDone && r.checks.every(Boolean);
         r.doneAt = r.done ? p.lastSeen : null;
+        if (NODES[k].videos) { r.plays = views; r.playDates = [p.firstSeen.slice(0, 10)]; }
       });
       return p;
     });
     Store.importSimulated(recs);
+    if (window.ERAS_TEACHBACK && window.ERAS_TEACHBACK.seedSim) window.ERAS_TEACHBACK.seedSim();
   }
   function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   $('btnDelSim').addEventListener('click', function () {
@@ -230,6 +232,8 @@
     if (window.ERAS_SURVEY) window.ERAS_SURVEY.removeSimulated();
     if (window.ERAS_NOTICES) window.ERAS_NOTICES.removeSimulated();
     if (window.ERAS_APAIS) window.ERAS_APAIS.removeSimulated();
+    if (window.ERAS_TEACHBACK) window.ERAS_TEACHBACK.removeSimulated();
+    if (window.ERAS_RESEARCH) window.ERAS_RESEARCH.refresh();
     if (window.ERAS_APADMIN) window.ERAS_APADMIN.refresh();
     if (window.ERAS_SADMIN) window.ERAS_SADMIN.refresh();
     if (window.ERAS_QADMIN) window.ERAS_QADMIN.refresh();
