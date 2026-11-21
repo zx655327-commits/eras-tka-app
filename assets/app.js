@@ -132,12 +132,10 @@
   function render() {
     var n = NODES[state.id];
     var stage = STAGES.filter(function (s) { return s.id === n.stage; })[0];
-    $('nodeTag').textContent = (stage ? stage.name : '') + (n.faq ? '｜常見疑問' : n.branch ? '｜補充說明' : '');
+    $('nodeTag').textContent = (stage ? stage.name : '') + (n.branch ? '｜補充說明' : '');
     $('nodeTag').className = 'tag' + (n.branch ? ' branch' : '');
     $('nodeTitle').textContent = n.title;
     $('nodeCore').textContent = n.corePoint || '';
-    $('nodeCore').classList.toggle('hidden', !n.corePoint);
-    renderFaq(n);
 
     var flag = $('nodeFlag');
     if (n.redFlag) { flag.classList.remove('hidden'); flag.querySelector('span').textContent = n.redFlag; }
@@ -187,21 +185,6 @@
 
     renderStages();
     renderToc();
-  }
-
-  /* 各階段末「常見疑問」：一題一個可展開的說明（計畫書：各階段末附常見疑問之說明） */
-  function renderFaq(n) {
-    var box = $('nodeFaq'); box.innerHTML = '';
-    box.classList.toggle('hidden', !n.faq);
-    (n.faq || []).forEach(function (f, i) {
-      var d = document.createElement('details'); if (i === 0) d.open = true;
-      var sm = document.createElement('summary'); sm.textContent = 'Q：' + f.q;
-      var a = document.createElement('p'); a.textContent = f.a;
-      d.appendChild(sm); d.appendChild(a); box.appendChild(d);
-    });
-  }
-  function faqSpeech(n) {
-    return (n.faq || []).map(function (f, i) { return '問題' + (i + 1) + '：' + f.q + '。' + f.a; }).join(' ');
   }
 
   function doneBox() {
@@ -407,7 +390,7 @@
       return;
     }
     if (state.speaking) { speechSynthesis.cancel(); state.speaking = false; $('btnPlay').textContent = '▶ 朗讀'; }
-    else { var cn = NODES[state.id]; speak(cn.faq ? faqSpeech(cn) : $('voiceText').textContent); }
+    else speak($('voiceText').textContent);
   });
   $('btnRate').addEventListener('click', function () {
     state.rate = state.rate < 1 ? 1.0 : 0.85;
