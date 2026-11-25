@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="辨識語言："/>
+        <Spinner android:id="@+id/langSpinner" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
+    </LinearLayout>
+    <Button android:id="@+id/btnToggle" android:layout_width="match_parent" android:layout_height="64dp"
+        android:text="開始錄音" android:textSize="20sp"/>
+    <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:paddingVertical="8dp" android:text="待機中"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="逐字稿" android:textStyle="bold"/>
+    <ScrollView android:id="@+id/scrollT" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <TextView android:id="@+id/transcript" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="17sp" android:textIsSelectable="true"/>
+    </ScrollView>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="即時翻譯" android:textStyle="bold"/>
+    <ScrollView android:id="@+id/scrollR" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <TextView android:id="@+id/translation" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="17sp" android:textIsSelectable="true"/>
+    </ScrollView>
+</LinearLayout>
