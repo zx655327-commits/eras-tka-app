@@ -79,7 +79,7 @@
     SOURCE: '院內現行「術後加速康復療程(ERAS)病人滿意度調查表」',
     list: load,
     get: function (patientKey) { return load().filter(function (s) { return s.patientKey === patientKey; })[0] || null; },
-    /* 每位病人（病歷號＋門診日期）保留一份，重新填寫會覆蓋並留下修改時間 */
+    /* 每位病人（病歷號）保留一份，重新填寫會覆蓋並留下修改時間 */
     submit: function (p, a) {
       var list = load(), old = null;
       list = list.filter(function (s) { if (s.patientKey === p.key) { old = s; return false; } return true; });
@@ -179,15 +179,18 @@
 
   function renderCard() {
     var p = Store.current(), rec = p && window.ERAS_SURVEY.get(p.key);
-    $('svStatus').textContent = rec ? '已填寫，謝謝您的回饋。' : '出院前請花幾分鐘填寫，幫助我們改善照護品質。';
+    $('svStatus').textContent = rec ? '已填寫，謝謝您的回饋。' : '⏳ 術前衛教時先不用填。請在「出院前」再回來填寫，幫助我們改善照護品質。';
     $('btnSurvey').textContent = rec ? '查看或修改我的回答' : '開始填寫';
     $('surveyCard').classList.toggle('sv-done', !!rec);
   }
 
+  /* 2026-11-28：不小心關閉時保留已填的答案（同一位病人重新打開不會清空）；送出後才重建 */
+  var builtFor = null;
   function open() {
     var p = Store.current(); if (!p) return;
     if (window.ERAS_APP && window.ERAS_APP.stopMedia) window.ERAS_APP.stopMedia();
-    build(); fill(window.ERAS_SURVEY.get(p.key));
+    ['remindOverlay', 'doneOverlay'].forEach(function (id) { var o = document.getElementById(id); if (o) o.classList.add('hidden'); });
+    if (builtFor !== p.key) { build(); fill(window.ERAS_SURVEY.get(p.key)); builtFor = p.key; }
     $('svErr').textContent = '';
     $('svFormWrap').classList.remove('hidden'); $('svThanks').classList.add('hidden');
     $('svOverlay').classList.remove('hidden');
@@ -201,7 +204,7 @@
   $('btnSurvey').addEventListener('click', open);
   $('svClose').addEventListener('click', close);
   $('svThanksClose').addEventListener('click', close);
-  $('svOverlay').addEventListener('click', function (e) { if (e.target === this) close(); });
+  /* 點到問卷外的暗色區域不再關閉（避免病人誤觸而清空作答）；請用右上角「關閉」 */
 
   $('svSubmit').addEventListener('click', function () {
     var p = Store.current(); if (!p) return;
@@ -236,7 +239,10 @@
     }
     var ok = window.ERAS_SURVEY.submit(p, { basic: basic, answers: answers, prior: prior.value, comment: $('svComment').value.trim() });
     if (!ok) { $('svErr').textContent = '儲存失敗，請稍後再試。'; return; }
+    builtFor = null;
     $('svFormWrap').classList.add('hidden'); $('svThanks').classList.remove('hidden');
+    $('svOverlay').querySelector('.ask-box').scrollTop = 0;
+    if (window.ERAS_CLOUD) window.ERAS_CLOUD.sync();
   });
 
   window.ERAS_SURVEY.renderCard = renderCard;

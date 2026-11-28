@@ -6,12 +6,12 @@
  */
 window.ERAS_STAGES = [
   /* 依 11/19 論文計畫書（APP 版）之五個衛教階段；開場與結語不屬五個衛教階段（extra），不列入進度條、完成階段數與 teach-back */
-  { id: 'intro', name: '開場', extra: true },
-  { id: 's1', name: '術前準備' },          // 門診評估、居家準備、禁食禁飲、入院準備與手術前注意事項
-  { id: 's2', name: '麻醉與手術流程' },    // 麻醉評估、進入手術室、監測、麻醉方式、安全查核
-  { id: 's3', name: '術後疼痛控制' },      // NRS 回報、多模式止痛、止痛藥物與副作用
-  { id: 's4', name: '早期活動' },          // 早期下床、CPM、助行器、部分負重、跌倒預防
-  { id: 's5', name: '復健及出院照護' },    // 居家復健、傷口照護、併發症警訊、求助與回診
+  { id: 'intro', name: 'ERAS 簡介', short: '簡介', extra: true },
+  { id: 's1', name: '術前準備', short: '術前準備' },          // 門診評估、居家準備、禁食禁飲、入院準備與手術前注意事項
+  { id: 's2', name: '麻醉與手術流程', short: '麻醉手術' },    // 麻醉評估、進入手術室、監測、麻醉方式、安全查核
+  { id: 's3', name: '術後疼痛控制', short: '疼痛控制' },      // NRS 回報、多模式止痛、止痛藥物與副作用
+  { id: 's4', name: '早期活動', short: '早期活動' },          // 早期下床、CPM、助行器、部分負重、跌倒預防
+  { id: 's5', name: '復健及出院照護', short: '出院照護' },    // 居家復健、傷口照護、併發症警訊、求助與回診
   { id: 'end', name: '結語', extra: true }
 ]
 window.ERAS_EDU_STAGES = window.ERAS_STAGES.filter(function (s) { return !s.extra; });
@@ -31,8 +31,8 @@ window.ERAS_NODES = {
     next: 'reason'
   },
   reason: {
-    stage: 's1', main: true, title: '為什麼建議做人工膝關節置換',
-    videos: ['v/03.mp4', 'v/04.mp4', 'v/05.mp4'],
+    stage: 'intro', main: true, title: '為什麼建議做人工膝關節置換',
+    videos: ['v/03.mp4', 'v/05.mp4', 'v/04.mp4']   /* 2026-11-28：先講手術（03 退化建議手術→05 替換磨損關節），再講 ERAS（04），銜接下一項 06 ERAS 流程 */,
     corePoint: '膝痛影響生活品質時，手術是替換磨損的關節表面，幫助您恢復活動力。',
     checklist: [
       '了解膝關節置換是替換磨損的關節表面，目的是恢復行走與活動力',
@@ -41,7 +41,7 @@ window.ERAS_NODES = {
     next: 'eras_flow'
   },
   eras_flow: {
-    stage: 's1', main: true, title: 'ERAS 照護流程簡介',
+    stage: 'intro', main: true, title: 'ERAS 照護流程簡介',
     videos: ['v/06.mp4'],
     corePoint: '接下來會依序說明：術前準備、麻醉、疼痛控制、早期活動與出院後追蹤。',
     next: 'history'
@@ -129,19 +129,34 @@ window.ERAS_NODES = {
   },
   resp: {
     stage: 's1', main: true, review: 'pending',
-    title: '戒菸、口腔清潔與深呼吸咳嗽',
-    script: '手術前請盡早戒菸，並做好口腔清潔，刷牙、使用牙線。請每天練習深呼吸與咳嗽：用鼻子慢慢吸氣，停三到五秒，再用嘴巴慢慢吐氣，這能幫助手術後肺部張開，預防肺炎。',
-    corePoint: '戒菸、口腔清潔與深呼吸咳嗽練習，可降低術後感染與肺部併發症。',
+    title: '戒菸、戒酒、口腔清潔與深呼吸咳嗽',
+    script: '手術前請盡早戒菸，並做好口腔清潔，刷牙、使用牙線。如果平常有喝酒的習慣，請在手術前減少或停止喝酒，並誠實告訴醫護人員您平常的飲酒量，需要時我們會提供戒菸或戒酒諮詢。請每天練習深呼吸與咳嗽：用鼻子慢慢吸氣，停三到五秒，再用嘴巴慢慢吐氣，這能幫助手術後肺部張開，預防肺炎。',
+    corePoint: '戒菸、戒酒、口腔清潔與深呼吸咳嗽練習，可降低術後感染與肺部併發症。',
     checklist: [
       '開始戒菸，並維持刷牙與牙線清潔',
+      '告知醫護人員平常的飲酒量，手術前減少或停止喝酒',
       '每天練習深呼吸咳嗽（吸氣停 3～5 秒再吐氣）'
+    ],
+    next: 'nutrition'
+  },
+  /* 2026-11-28 依健保 ERAS 推廣計畫附件七（門診 6 營養諮詢、手術後 8 術後營養照護）新增，待審 */
+  nutrition: {
+    stage: 's1', main: true, review: 'pending',
+    title: '術前營養：吃得夠，術後才有體力復原',
+    script: '手術前，營養師會量您的身高、體重，並參考抽血的白蛋白，評估您的營養狀況。手術前請三餐均衡，每餐都要有足夠的蛋白質，例如魚、肉、蛋、豆腐、豆漿或牛奶，幫助傷口癒合與肌肉恢復。有糖尿病的長輩，請依醫師與營養師的建議控制血糖。手術後，只要可以喝水、沒有噁心想吐，就會讓您及早開始喝水和進食，這有助於體力和腸胃功能恢復。',
+    corePoint: '術前三餐均衡、蛋白質吃足夠；術後可以喝水、不噁心，就及早開始進食。',
+    checklist: [
+      '術前三餐均衡，每餐都有蛋白質（魚、肉、蛋、豆製品或奶類）',
+      '有糖尿病者依醫師與營養師建議控制血糖',
+      '了解術後可以喝水、不噁心就會及早開始進食'
     ],
     next: 'exam'
   },
   exam: {
-    stage: 's1', main: true, title: '術前檢查是為了安全',
+    stage: 's1', main: true, review: 'pending', title: '術前檢查是為了安全',
     videos: ['v/09.mp4'],
-    corePoint: '手術前，醫療團隊會安排必要檢查與評估，確認您的身體狀況，讓手術與麻醉更安全。',
+    corePoint: '手術前，醫療團隊會安排胸部 X 光、心電圖與抽血（如血色素、凝血功能、血糖、白蛋白）等檢查，確認您的身體狀況。若發現貧血，醫師會在手術前先處理，讓手術與麻醉更安全。',
+    checklist: [ '了解術前會做胸部 X 光、心電圖與抽血檢查', '了解若有貧血，醫師會在手術前先處理' ],
     next: 'fasting'
   },
   fasting: {
@@ -166,11 +181,11 @@ window.ERAS_NODES = {
   fasting_clear: {
     stage: 's1', branch: true, review: 'pending',
     title: '術前 2～8 小時可飲用的清流質',
-    script: '手術前 2 到 8 小時之間，可以喝倒在透明杯子裡看得到杯底、沒有渣的液體，例如醫院提供的術前碳水飲品、白開水、無果粒的清果汁，總量建議在 400 毫升以內。牛奶、豆漿、米漿和拿鐵進到胃裡會結塊，要和固體食物一樣，在 8 小時前停止。',
+    script: '手術前 2 到 8 小時之間，可以喝倒在透明杯子裡看得到杯底、沒有渣的液體，例如醫院提供的術前碳水飲品、白開水、無果粒的清果汁，總量建議在 200 毫升以內。牛奶、豆漿、米漿和拿鐵進到胃裡會結塊，要和固體食物一樣，在 8 小時前停止。',
     corePoint: '可喝：術前碳水飲、白開水、無果粒清果汁；不可喝：牛奶、豆漿、米漿、拿鐵。',
     checklist: [
       '確認飲品透明無渣（看得到杯底）',
-      '在「手術前滿 2 小時」之前喝完，總量約 400 mL 以內',
+      '在「手術前滿 2 小時」之前喝完，總量約 200 mL 以內',
       '刷牙漱口的水要吐掉，不要吞下'
     ],
     options: [ { label: '回到主線，繼續下一步', target: 'identity', primary: true } ]
@@ -195,8 +210,9 @@ window.ERAS_NODES = {
   surgery_day: {
     stage: 's2', main: true, title: '手術當日準備',
     videos: ['v/11.mp4'],
-    corePoint: '手術當日請更換病人服，取下假牙、飾品與指甲油。接近手術時間時，工作人員會協助您前往手術室。',
-    checklist: [ '更換病人服', '取下假牙、飾品，卸除指甲油' ],
+    review: 'pending',
+    corePoint: '手術前請依護理師指導，用肥皂或含抗菌劑的沐浴乳洗澡，降低傷口感染。手術當日請更換病人服，取下假牙、飾品與指甲油。接近手術時間時，工作人員會協助您前往手術室。',
+    checklist: [ '依護理師指導，以肥皂或抗菌沐浴乳完成術前沐浴', '更換病人服', '取下假牙、飾品，卸除指甲油' ],
     next: 'ponv'
   },
   ponv: {
@@ -223,10 +239,25 @@ window.ERAS_NODES = {
   pain_intro: {
     stage: 's3', main: true, title: '止痛是為了能活動：多模式止痛',
     videos: ['v/15.mp4', 'v/16.mp4'],
-    corePoint: '止痛的目的是讓您能翻身、起床與活動。我們會合併多種止痛方式，減少副作用。',
+    review: 'pending',
+    corePoint: '止痛的目的是讓您能翻身、起床與活動。我們會合併多種止痛方式，減少副作用。常見的方式有：按時口服止痛藥、止痛針劑、神經阻斷（在腿部神經旁打局部麻醉藥）、手術時在傷口周圍打局部麻醉藥，必要時使用自控式止痛（PCA，自己按按鈕給藥）。麻醉科醫師會依您的狀況選擇。',
     checklist: [
       '了解止痛是為了能活動，不需要忍痛',
+      '知道止痛方式有：口服藥、針劑、神經阻斷、傷口局部麻醉、自控式止痛（PCA）',
       '依醫囑按時服用常規止痛藥，不等到很痛才吃'
+    ],
+    next: 'postop_care'
+  },
+  /* 2026-11-28 依健保 ERAS 推廣計畫附件七（手術後 2、4、5、6、8）新增，待審 */
+  postop_care: {
+    stage: 's3', main: true, review: 'pending',
+    title: '術後管路、點滴與及早進食',
+    script: '手術後，有些病人不會放尿管或引流管；如果有放，骨科醫師每天都會評估，盡早幫您拔除，方便您下床活動。手術後只要可以喝水，點滴就會盡早停止，不會一直打。不噁心時就可以開始喝水、進食。手術當天和術後第一天，護理師會詢問您有沒有噁心、想吐；如果覺得噁心或吐了，請馬上告訴護理師，可以給您止吐藥。',
+    corePoint: '尿管、引流管不一定會放，有放會每天評估盡早拔除；可以喝水後點滴就盡早停；噁心想吐請馬上說。',
+    checklist: [
+      '了解尿管、引流管不一定會放，有放會每天評估盡早拔除',
+      '了解可以喝水後點滴會盡早停止，並及早開始進食',
+      '術後覺得噁心或嘔吐，馬上告訴護理師'
     ],
     next: 'pain_assess'
   },
@@ -272,9 +303,11 @@ window.ERAS_NODES = {
     stage: 's4', main: true, review: 'pending', title: '床上復健運動與漸進式下床',
     videos: ['v/18.mp4'],
     tool: 'ankle',
-    corePoint: '床上勤做踝幫浦運動預防血栓；下床前先坐床邊，確認不頭暈再站起來。',
+    corePoint: '手術後 24 小時內，醫護人員會協助您床邊站立或下床走動。床上勤做踝幫浦運動預防血栓；醫師也可能依您的狀況使用抗血栓藥物，或彈性襪、腿部氣動加壓裝置。下床前先坐床邊，確認不頭暈再站起來。',
     checklist: [
+      '了解手術後 24 小時內，會在醫護人員協助下站立或下床走動',
       '每小時做 10～20 下踝幫浦運動（勾腳尖 5 秒、壓腳背 5 秒）',
+      '依醫囑使用抗血栓藥物、彈性襪或腿部氣動加壓裝置',
       '下床時有家屬或醫護人員陪同，穿防滑鞋',
       '下床三部曲：搖高床頭 → 坐床邊雙腳下垂 5 分鐘 → 扶助行器站立，不暈再走'
     ],
@@ -348,7 +381,14 @@ window.ERAS_NODES = {
   discharge: {
     stage: 's5', main: true, title: '出院衛教與傷口照護',
     videos: ['v/20.mp4'],
-    corePoint: '出院前，護理師會說明傷口照護、居家活動與回診追蹤。',
+    review: 'pending',
+    corePoint: '出院前，護理師會說明傷口照護、居家活動與回診追蹤。出院時疼痛目標約在 3 分以下；出院後會安排 2 次門診追蹤。出院 30 天內如果到急診、再次住院或再次手術，請告訴 ERAS 個管師。',
+    checklist: [
+      '知道傷口怎麼照顧、什麼時候換藥',
+      '出院時疼痛約 3 分以下，回家依醫囑服用止痛藥',
+      '知道回診日期（出院後會安排 2 次門診追蹤）',
+      '出院 30 天內若到急診、再住院或再手術，會告訴 ERAS 個管師'
+    ],
     redFlag: '出院後若傷口紅腫熱痛、流膿、發燒，或小腿單側腫痛、突然胸痛或呼吸喘，請立即回診或到急診。',
     survey: true,
     next: 'home_rehab'
@@ -387,3 +427,95 @@ window.ERAS_NODES = {
 
 /* 主線順序（供進度、後台統計、目錄使用） */
 window.ERAS_ORDER = Object.keys(window.ERAS_NODES);
+
+/* 2026-11-28 依健保 ERAS 推廣計畫附件七新增／修改的內容：團隊端「內容審核狀態」分頁以紅字粗體標示，供審查 */
+window.ERAS_REVISED = {
+  date: '2026-11-28',
+  source: '健保 ERAS 推廣計畫（115/8/4 修正）附件七 關節置換術執行項目清單',
+  items: {
+    resp:        { type: '修改', basis: '門診 9 戒酒諮詢', text: ['標題加入「戒酒」', '說明：告知飲酒量，術前減少或停止喝酒，需要時提供戒菸或戒酒諮詢', '自我檢核新增：告知醫護人員平常的飲酒量，手術前減少或停止喝酒'] },
+    nutrition:   { type: '新增', basis: '門診 6 營養諮詢；手術後 8 術後營養照護', text: ['整項新增：術前營養評估、三餐均衡與蛋白質、糖尿病控糖、術後及早進食（含 3 項自我檢核）'] },
+    exam:        { type: '修改', basis: '門診 3 心肺功能評估、4 術前檢驗、10 術前貧血評估', text: ['重點改為：胸部 X 光、心電圖與抽血（血色素、凝血功能、血糖、白蛋白）；若有貧血，術前先處理', '自我檢核新增 2 項（檢查項目、貧血處理）'] },
+    surgery_day: { type: '修改', basis: '住院當天 2 術前沐浴', text: ['重點新增：依護理師指導，用肥皂或含抗菌劑的沐浴乳術前沐浴', '自我檢核新增：完成術前沐浴'] },
+    pain_intro:  { type: '修改', basis: '手術當天 3 術前止痛、手術中 1 麻醉止痛、手術後 1 術後藥物止痛', text: ['重點新增具體止痛方式：口服止痛藥、止痛針劑、神經阻斷、傷口局部麻醉、自控式止痛（PCA）', '自我檢核新增：知道有哪些止痛方式（對應 teach-back 第三階段第 1 題）'] },
+    postop_care: { type: '新增', basis: '手術後 2 暈吐評估、4 拔除尿管、5 拔除引流管、6 減少術後過多輸液、8 術後及早進食', text: ['整項新增：尿管與引流管每日評估盡早拔除、可喝水後盡早停點滴、及早進食、噁心嘔吐評估（含 3 項自我檢核）'] },
+    rehab:       { type: '修改', basis: '手術後 9 術後 24 小時內離床、10 血栓預防', text: ['重點新增：術後 24 小時內協助床邊站立或下床；可能使用抗血栓藥物、彈性襪或腿部氣動加壓', '自我檢核新增 2 項（24 小時內下床、血栓預防措施）'] },
+    discharge:   { type: '修改', basis: '出院當天 1 傷口護理、2 疼痛 ≤3 分、3 返診；出院追蹤 1–5', text: ['重點新增：出院疼痛目標 3 分以下、出院後 2 次門診追蹤、30 天內急診／再住院／再手術告知個管師', '新增 4 項自我檢核（傷口照顧、疼痛、回診日期、30 天內告知）'] }
+  }
+};
+
+/* 2026-11-28 衛教圖卡對應（禁食卡已改為 8 小時、劇痛卡已改為膝關節警訊、糖尿病卡背景海報已改為膝關節） */
+(function () {
+  var M = {
+    welcome:           [['family_watch.gif', '和家屬一起看，了解每個階段的重點']],
+    identity:          [['identity_check.webp', '多次核對，是為了安全']],
+    surgery_day:       [['gown_dentures.webp', '換病人服、取下假牙飾品']],
+    exam:              [['preop_exams.webp', '依約完成檢查：胸部X光、心電圖、抽血']],
+    resp:              [['deep_breath.webp', '鼻子吸氣、停3～5秒、嘴巴吐氣']],
+    fasting:           [['fasting_8h.webp', '不用從半夜就禁食：術前 8 小時停止固體食物、術前 2 小時停止清澈飲品']],
+    med_diabetes:      [['dm_meds_knee.webp', '糖尿病用藥需要調整'], ['sglt2_glp1.webp', '排糖藥、腸泌素針要先告知']],
+    fasting_clear:     [['clear_fluid.webp', '看得到杯底＝可以喝'], ['no_milk_soy.webp', '牛奶、豆漿、米漿、果粒飲料不可以']],
+    fasting_violation: [['aspiration.webp', '食物可能嗆進肺部']],
+    intraop:           [['monitor_warm.webp', '全程監測與保溫']],
+    pain_intro:        [['multimodal_pain.webp', '多種止痛方式一起用：口服止痛藥、自控式止痛、大腿神經阻斷']],
+    pain_assess:       [['pain_score.webp', '誠實說出分數，不要忍痛']],
+    pain_mild:         [['pain_0_3.webp', '0～3分：把握時機下床']],
+    pain_severe:       [['pain_7_knee.webp', '7分以上或小腿單側腫痛、腳趾麻木冰冷、傷口大量滲血、胸痛呼吸喘：立刻按鈴']],
+    dizzy:             [['dizzy.webp', '第一次下床可能會頭暈']],
+    discharge:         [['return_date.webp', '記下返診日期']],
+    warning_signs:     [['chest_pain_119.webp', '胸痛、呼吸喘：撥119']]
+  };
+  Object.keys(M).forEach(function (k) {
+    if (window.ERAS_NODES[k]) window.ERAS_NODES[k].images = M[k].map(function (x) { return { src: 'img/' + x[0], alt: x[1] }; });
+  });
+})();
+/* 2026-11-28 依臨床流程調整順序：
+   1. 術後疼痛控制：多模式止痛 → 疼痛評估（含輕／中／重度分支）→ 術後管路、點滴與及早進食
+   2. 早期活動：床上復健與漸進式下床（含頭暈分支）→ 下床負重 → 助行器 → CPM → 預防跌倒 */
+(function () {
+  var N = window.ERAS_NODES;
+  function retarget(id, from, to, label) {
+    (N[id].options || []).forEach(function (o) { if (o.target === from) { o.target = to; if (label) o.label = label; } });
+  }
+  N.pain_intro.next = 'pain_assess';
+  N.pain_assess.next = 'postop_care';
+  retarget('pain_mild', 'rehab', 'postop_care', '回到主線：術後管路、點滴與進食');
+  retarget('pain_moderate', 'rehab', 'postop_care', '回到主線：術後管路、點滴與進食');
+  retarget('pain_severe', 'rehab', 'postop_care', '了解了，回到主線：術後管路、點滴與進食');
+  N.postop_care.next = 'rehab';
+  N.rehab.next = 'weight_bearing';
+  retarget('rehab', 'walker', 'weight_bearing', '不頭暈，準備下床：先了解負重');
+  retarget('dizzy', 'walker', 'weight_bearing', '已經不暈了，繼續：下床負重');
+  N.weight_bearing.next = 'walker';
+  N.walker.next = 'cpm';
+  N.cpm.next = 'fall_prevention';
+  window.ERAS_ORDER = [
+    'welcome', 'opening', 'reason', 'eras_flow',
+    'history', 'meds', 'med_anticoag', 'med_diabetes', 'med_bp', 'resp', 'nutrition', 'exam', 'fasting', 'fasting_clear', 'fasting_violation',
+    'identity', 'surgery_day', 'ponv', 'intraop', 'discomfort',
+    'pain_intro', 'pain_assess', 'pain_mild', 'pain_moderate', 'pain_severe', 'postop_care',
+    'rehab', 'dizzy', 'weight_bearing', 'walker', 'cpm', 'fall_prevention',
+    'discharge', 'home_rehab', 'warning_signs',
+    'closing'
+  ];
+})();
+/* 2026-11-28 ERAS 簡介合併為一項，6 段影片連續播放完畢（01 歡迎 → 02 開場 → 03 退化建議手術 → 05 替換磨損關節 → 04 ERAS 的意思 → 06 ERAS 流程） */
+(function () {
+  var N = window.ERAS_NODES;
+  N.welcome.title = 'ERAS 簡介：從術前到出院的照護流程';
+  N.welcome.videos = ['v/01.mp4', 'v/02.mp4', 'v/03.mp4', 'v/05.mp4', 'v/04.mp4', 'v/06.mp4'];
+  N.welcome.corePoint = '歡迎您與家屬一起觀看。膝痛影響生活品質時，手術是替換磨損的關節表面，幫助您恢復活動力；ERAS 不是趕出院，而是由團隊安全、有計畫地陪您恢復。接下來會依序說明：術前準備、麻醉、疼痛控制、早期活動與出院後追蹤。';
+  N.welcome.checklist = N.reason.checklist;
+  N.welcome.next = 'history';
+  ['opening', 'reason', 'eras_flow'].forEach(function (k) { delete N[k]; });
+  window.ERAS_ORDER = window.ERAS_ORDER.filter(function (k) { return N[k]; });
+})();
+/* 圖卡與影片加上版本號：檔案更新後，避免手機或瀏覽器沿用舊的快取檔案。更新圖檔或影片時請把 ASSET_V 改成新的值 */
+(function () {
+  var ASSET_V = 'r20261128n';
+  Object.keys(window.ERAS_NODES).forEach(function (k) {
+    var n = window.ERAS_NODES[k];
+    if (n.videos) n.videos = n.videos.map(function (v) { return v.split('?')[0] + '?v=' + ASSET_V; });
+    if (n.images) n.images.forEach(function (im) { im.src = im.src.split('?')[0] + '?v=' + ASSET_V; });
+  });
+})();

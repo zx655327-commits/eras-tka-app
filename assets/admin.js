@@ -25,9 +25,9 @@
 
   $('modeBanner').textContent = CFG.demo
     ? '展示版：資料皆為模擬，只存在您這台裝置的瀏覽器。'
-    : CFG.apiBase
-    ? '資料來源：院內伺服器（' + CFG.apiBase + '）'
-    : '測試版：只顯示「這台裝置」上的紀錄。正式上線需接院內伺服器，才能彙整所有病人與所有職類的紀錄。';
+    : CFG.cloudUrl
+    ? '資料來源：ERAS 後台（Google 試算表），連線中…'
+    : '尚未設定後台：只顯示「這台裝置」上的紀錄。正式上線需接院內伺服器，才能彙整所有病人與所有職類的紀錄。';
 
   /* 分頁 */
   document.querySelectorAll('.tab').forEach(function (t) {
@@ -53,14 +53,36 @@
   function seenMains(p) { return MAINS.filter(function (k) { return p.nodes[k] && p.nodes[k].views > 0; }).length; }
   function doneMains(p) { return MAINS.filter(function (k) { return p.nodes[k] && p.nodes[k].done; }).length; }
   function checkText(n, r) { var c = n.checklist || []; if (!c.length) return '—'; return c.filter(function (_, i) { return r.checks && r.checks[i]; }).length + ' / ' + c.length; }
+  /* 門診日期：個管師確認過的優先，否則用病人第一次登入日 */
+  function cdate(p) { return Store.clinicDateOf(p.mrn, p.clinicDate); }
+  function renderClinicEditor(p) {
+    var box = $('clinicEdit'); if (!box) return;
+    var ci = Store.clinicInfo(p.mrn, p.clinicDate);
+    box.innerHTML = '';
+    var lb = document.createElement('label'); lb.textContent = '門診日期 ';
+    var inp = document.createElement('input'); inp.type = 'date'; inp.value = ci.date || ''; inp.id = 'clinicDateInput';
+    lb.appendChild(inp);
+    var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn'; btn.textContent = ci.confirmed ? '修改' : '確認門診日期';
+    var st = document.createElement('span'); st.className = 'cd-st ' + (ci.confirmed ? 'ok' : 'warn');
+    st.textContent = ci.confirmed ? '✓ 已確認（' + (ci.by || '') + ' ' + dt(ci.at) + '）' : '⚠ 待確認：目前顯示的是病人第一次登入 App 的日期（' + (p.clinicDate || '—') + '），請依病歷核對真正的門診日後按「確認門診日期」。';
+    btn.addEventListener('click', function () {
+      if (!inp.value) { st.textContent = '請先選擇日期。'; return; }
+      var w = window.ERAS_CLOUD && window.ERAS_CLOUD.teamWho && window.ERAS_CLOUD.teamWho();
+      var opt = w && w.role ? document.querySelector('#role option[value="' + w.role + '"]') : null;
+      Store.setClinicDate(p.mrn, inp.value, opt ? opt.textContent : (w && w.role) || '');
+      renderAll(); renderDetail(p);
+    });
+    box.appendChild(lb); box.appendChild(btn); box.appendChild(st);
+  }
   function td(text, cls) { var c = document.createElement('td'); c.textContent = text; if (cls) c.className = cls; return c; }
 
   function filtered() {
     var q = $('q').value.trim().toUpperCase(), f = $('from').value, t = $('to').value;
     return Store.listPatients().filter(function (p) {
-      if (q && p.name.toUpperCase().indexOf(q) < 0 && p.mrn.indexOf(q) < 0) return false;
-      if (f && p.clinicDate < f) return false;
-      if (t && p.clinicDate > t) return false;
+      if (q && Store.nameOf(p.mrn, p.name).toUpperCase().indexOf(q) < 0 && p.mrn.indexOf(q) < 0) return false;
+      var cd = cdate(p);
+      if (f && cd < f) return false;
+      if (t && cd > t) return false;
       return true;
     }).sort(function (a, b) { return a.lastSeen < b.lastSeen ? 1 : -1; });
   }
@@ -72,11 +94,13 @@
     $('emptyMsg').classList.toggle('hidden', list.length > 0);
     list.forEach(function (p) {
       var tr = document.createElement('tr'); tr.className = 'click' + (selected === p.key ? ' sel' : '');
-      var nameTd = td(p.name);
+      var nameTd = td(Store.nameOf(p.mrn, p.name));
       if (p.simulated) { var s = document.createElement('span'); s.className = 'pill sim'; s.textContent = '模擬'; nameTd.append(' ', s); }
       tr.appendChild(nameTd);
       tr.appendChild(td(p.mrn));
-      tr.appendChild(td(p.clinicDate));
+      var ci = Store.clinicInfo(p.mrn, p.clinicDate), cdTd = td(ci.date);
+      if (!ci.confirmed && !p.simulated) { var pc = document.createElement('span'); pc.className = 'pill warn-pill'; pc.textContent = '待確認'; pc.title = '病人第一次登入日，尚未由個管師確認門診日'; cdTd.append(' ', pc); }
+      tr.appendChild(cdTd);
       tr.appendChild(td(dt(p.firstSeen)));
       tr.appendChild(td(dt(p.lastSeen)));
       tr.appendChild(td(p.logins, 'num'));
@@ -117,7 +141,8 @@
   /* 明細 */
   function renderDetail(p) {
     $('detailCard').classList.remove('hidden');
-    $('detailTitle').textContent = p.name + '（' + p.mrn + '）門診日期 ' + p.clinicDate + (p.simulated ? '［模擬資料］' : '');
+    $('detailTitle').textContent = Store.nameOf(p.mrn, p.name) + '（' + p.mrn + '）' + (p.simulated ? '［模擬資料］' : '');
+    renderClinicEditor(p);
     var tb = $('tblDetail').querySelector('tbody'); tb.innerHTML = '';
     var sum = { v: 0, s: 0, vs: 0 };
     ORDER.forEach(function (k) {
@@ -158,18 +183,18 @@
   }
   function stamp() { var d = new Date(); return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0'); }
   function sumRows() {
-    var rows = [[ '姓名', '病歷號', '門診日期', '首次觀看', '最後觀看', '登入次數', '主要項目已看數', '主要項目已完成數', '主要項目總數', '總觀看時間(秒)', '模擬資料' ]];
+    var rows = [[ '姓名', '病歷號', '門診日期', '門診日期已確認', '首次觀看', '最後觀看', '登入次數', '主要項目已看數', '主要項目已完成數', '主要項目總數', '總觀看時間(秒)', '模擬資料' ]];
     filtered().forEach(function (p) {
-      rows.push([ p.name, p.mrn, p.clinicDate, dt(p.firstSeen), dt(p.lastSeen), p.logins, seenMains(p), doneMains(p), MAINS.length, Math.round(Store.totalSeconds(p)), p.simulated ? '是' : '否' ]);
+      rows.push([ Store.nameOf(p.mrn, p.name), p.mrn, cdate(p), Store.clinicInfo(p.mrn).confirmed ? '是' : '否', dt(p.firstSeen), dt(p.lastSeen), p.logins, seenMains(p), doneMains(p), MAINS.length, Math.round(Store.totalSeconds(p)), p.simulated ? '是' : '否' ]);
     });
     return rows;
   }
   function detailRows() {
-    var rows = [[ '姓名', '病歷號', '門診日期', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '影片看完', '理解自我檢核（病人自評）', '項目完成', '完成時間', '最後觀看', '模擬資料' ]];
+    var rows = [[ '姓名', '病歷號', '門診日期', '門診日期已確認', '階段', '項目代碼', '項目', '類型', '觀看次數', '觀看時間(秒)', '影片播放時間(秒)', '影片看完', '理解自我檢核（病人自評）', '項目完成', '完成時間', '最後觀看', '模擬資料' ]];
     filtered().forEach(function (p) {
       ORDER.forEach(function (k) {
         var n = NODES[k], r = p.nodes[k] || { views: 0, seconds: 0, videoSeconds: 0 };
-        rows.push([ p.name, p.mrn, p.clinicDate, stageName(n.stage), k, n.title, n.branch ? '補充說明' : '主線', r.views, Math.round(r.seconds), Math.round(r.videoSeconds), n.videos ? (r.videoDone ? '是' : '否') : '無影片', checkText(n, r), r.done ? '是' : '否', dt(r.doneAt), dt(r.last), p.simulated ? '是' : '否' ]);
+        rows.push([ Store.nameOf(p.mrn, p.name), p.mrn, cdate(p), Store.clinicInfo(p.mrn).confirmed ? '是' : '否', stageName(n.stage), k, n.title, n.branch ? '補充說明' : '主線', r.views, Math.round(r.seconds), Math.round(r.videoSeconds), n.videos ? (r.videoDone ? '是' : '否') : '無影片', checkText(n, r), r.done ? '是' : '否', dt(r.doneAt), dt(r.last), p.simulated ? '是' : '否' ]);
       });
     });
     return rows;
@@ -203,7 +228,7 @@
     var recs = seedNames.map(function (sn, i) {
       var rnd = mulberry(i + 7);
       var date = new Date(day.getTime() - i * 86400000).toISOString().slice(0, 10);
-      var p = { key: sn[1] + '|' + date, name: sn[0], mrn: sn[1], clinicDate: date, logins: 1 + i,
+      var p = { key: sn[1], name: sn[0], mrn: sn[1], clinicDate: date, logins: 1 + i,
         firstSeen: new Date(Date.now() - (i + 1) * 7200000).toISOString(), lastSeen: new Date(Date.now() - i * 3600000).toISOString(),
         nodes: {}, path: [] };
       var cut = i === 2 ? 10 : ORDER.length;
@@ -239,6 +264,8 @@
     if (window.ERAS_QADMIN) window.ERAS_QADMIN.refresh();
     closeDetail(); renderAll();
   });
+  /* 收案版：資料會同步到後台，「清除全部」與「產生模擬資料」會影響所有裝置，故隱藏；如需刪除請直接在試算表處理 */
+  if (CFG.cloudUrl) { $('btnClear').classList.add('hidden'); $('btnSim').classList.add('hidden'); }
   $('btnClear').addEventListener('click', function () {
     var b = this;
     twoStep(b, '再按一次清除全部（無法復原）', function () { Store.clearAll(); closeDetail(); renderAll(); });
@@ -247,11 +274,22 @@
   /* 內容審核 */
   function renderReview() {
     var tb = $('tblReview').querySelector('tbody'); tb.innerHTML = '';
+    var REV = (window.ERAS_REVISED || {}).items || {};
     ORDER.forEach(function (k) {
-      var n = NODES[k];
+      var n = NODES[k], rv = REV[k];
       var tr = document.createElement('tr');
       tr.appendChild(td(stageName(n.stage)));
-      tr.appendChild(td(n.title));
+      var tt = td(n.title);
+      if (rv) {
+        tt.className = 'rev';
+        var tag = document.createElement('div'); tag.className = 'rev';
+        tag.textContent = '【' + window.ERAS_REVISED.date + ' ' + rv.type + '】依附件七：' + rv.basis;
+        tt.appendChild(tag);
+        var ul = document.createElement('ul'); ul.className = 'rev';
+        rv.text.forEach(function (s) { var li = document.createElement('li'); li.textContent = s; ul.appendChild(li); });
+        tt.appendChild(ul);
+      }
+      tr.appendChild(tt);
       tr.appendChild(td(n.branch ? '補充說明' : '主線'));
       tr.appendChild(td(n.videos ? n.videos.length + ' 段' : '語音朗讀'));
       var st = document.createElement('td'), pill = document.createElement('span');

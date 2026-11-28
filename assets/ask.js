@@ -18,11 +18,13 @@
   function open() {
     if (!Store.current()) return;
     if (window.ERAS_APP && window.ERAS_APP.stopMedia) window.ERAS_APP.stopMedia();
-    var last = mine().slice(-1)[0];
-    if (last) {
-      if (!$('askPhone').value) $('askPhone').value = last.phone || '';
-      if (!$('askEmail').value) $('askEmail').value = last.email || '';
-    }
+    /* 記住這位病人上次填的聯絡資料（電話、Email、提問者、聯絡時段），不必每次重填 */
+    var last = mine().slice(-1)[0] || {}, saved = {};
+    try { saved = (JSON.parse(localStorage.getItem('eras_ask_contact')) || {})[Store.current().key] || {}; } catch (e) {}
+    if (!$('askPhone').value) $('askPhone').value = saved.phone || last.phone || '';
+    if (!$('askEmail').value) $('askEmail').value = saved.email || last.email || '';
+    if (saved.who) $('askWho').value = saved.who;
+    if (saved.time) $('askTime').value = saved.time;
     var id = window.ERAS_APP && window.ERAS_APP.currentNode();
     $('askAbout').textContent = id && NODES[id] ? '目前觀看：' + NODES[id].title : '';
     $('askErr').textContent = '';
@@ -51,6 +53,8 @@
     $('btnRec').classList.add('hidden');
     $('btnDictate').classList.add('hidden');
     $('askFileWrap').classList.add('ask-file-main');
+    /* 無法直接錄音時，手機錄音是唯一方式 → 移出「其他方式」並隱藏折疊區 */
+    var more = $('askMore'); if (more) { more.parentNode.insertBefore($('askFileWrap'), more); more.classList.add('hidden'); }
     $('askRecHint').textContent = msg || '請按下方按鈕，用手機錄一段話（或選擇已錄好的語音檔），個管師可以直接聽您的聲音。';
   }
   function setAudio(a) {
@@ -157,6 +161,8 @@
       simulated: !!(CFG.demo || p.simulated)
     });
     if (!q) { err.textContent = '儲存失敗（可能是語音檔太大），請刪除錄音或錄短一點再送出。'; return; }
+    try { var c = JSON.parse(localStorage.getItem('eras_ask_contact')) || {}; c[p.key] = { phone: phone, email: email, who: $('askWho').value, time: $('askTime').value }; localStorage.setItem('eras_ask_contact', JSON.stringify(c)); } catch (e) {}
+    if (window.ERAS_CLOUD) window.ERAS_CLOUD.sync();   // 送出後立即傳給個管師
     $('askText').value = ''; setAudio(null); $('askFile').value = '';
     showForm(false);
     renderMine();
@@ -171,7 +177,30 @@
       var a = document.createElement('span'); a.className = 'ask-when'; a.textContent = showIso(q.createdAt);
       var b = document.createElement('span'); b.className = 'ask-q'; b.textContent = q.text || '（語音提問）';
       var c = document.createElement('span'); c.className = 'ask-st st-' + Q.STATUS.indexOf(q.status); c.textContent = q.status;
-      li.appendChild(a); li.appendChild(c); li.appendChild(b); ul.appendChild(li);
+      li.appendChild(a); li.appendChild(c); li.appendChild(b);
+      /* 個管師的回覆（不顯示「狀態改為…」系統紀錄） */
+      (q.replies || []).filter(function (r) { return r.note && !/^狀態改為/.test(r.note); }).forEach(function (r) {
+        var d = document.createElement('div'); d.className = 'ask-reply';
+        d.textContent = '💬 ' + (r.role || '個管師') + ' 回覆（' + showIso(r.at) + '）：' + r.note;
+        li.appendChild(d);
+      });
+      ul.appendChild(li);
     });
+    try { var seen = JSON.parse(localStorage.getItem('eras_ask_seen')) || {}; var p = Store.current(); if (p) { seen[p.key] = replyCount(); localStorage.setItem('eras_ask_seen', JSON.stringify(seen)); } } catch (e) {}
+    updateBadge();
   }
+  function replyCount() {
+    return mine().reduce(function (s, q) { return s + (q.replies || []).filter(function (r) { return r.note && !/^狀態改為/.test(r.note); }).length; }, 0);
+  }
+  /* 有新回覆時，「我有疑問」按鈕顯示提醒 */
+  function updateBadge() {
+    var p = Store.current(), fab = $('btnAsk'); if (!fab) return;
+    var seen = 0; try { seen = (JSON.parse(localStorage.getItem('eras_ask_seen')) || {})[p && p.key] || 0; } catch (e) {}
+    var n = p ? replyCount() - seen : 0;
+    var b = $('askBadge');
+    if (!b) { b = document.createElement('span'); b.id = 'askBadge'; b.className = 'ask-badge hidden'; fab.appendChild(b); }
+    b.textContent = n > 0 ? '有新回覆' : ''; b.classList.toggle('hidden', !(n > 0));
+  }
+  document.addEventListener('eras-cloud', function () { updateBadge(); if (!$('askMineWrap').closest('.hidden')) renderMine(); });
+  setTimeout(updateBadge, 500);
 })();

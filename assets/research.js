@@ -17,7 +17,7 @@
   function pad(n) { return String(n).padStart(2, '0'); }
   function showIso(iso) { if (!iso) return ''; var d = new Date(iso); return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   function pct(x) { return Math.round(x * 1000) / 10; }
-  function authed() { return window.ERAS_TEAM && window.ERAS_TEAM.isAdmin(); }
+  function authed() { return window.ERAS_TEAM && window.ERAS_TEAM.isSuper(); }  /* 研究資料僅後台管理者 */
 
   function rows() {
     var by = {};

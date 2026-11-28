@@ -4,7 +4,7 @@
  * 照護項目依「全民健康保險術後加速康復推廣計畫」（115 年 8 月 4 日健保醫字第 1150115782 號公告修正）
  * 附件七「ERAS 個案照護執行項目清單：一、關節置換術」建立，項目名稱與勾選選項照原文。
  * ※ 各項目的「負責職類」(roles) 是暫定分工，公告清單本身沒有指定職類，請 ERAS 團隊確認。
- * ※ 密碼為測試用，寫在程式中不具資安保護；正式上線須改由院內帳號驗證。
+ * ※ 收案版：各職類密碼與管理權限改存於後台 Google 試算表「帳號密碼」工作表，由後台驗證，本檔不含密碼。
  *
  * 每個項目：
  *   opts   ＝ 已執行時可勾選的內容（照公告「已執行」欄）
@@ -14,14 +14,15 @@
 window.ERAS_PHASES = ['門診', '住院當天', '手術當天', '手術中', '手術後', '出院當天', '出院追蹤'];
 
 window.ERAS_ROLES = [
-  { id: 'cm',     name: 'ERAS 個管師',     pin: '1001', admin: true },
-  { id: 'anesmd', name: '麻醉科醫師',      pin: '2001' },
-  { id: 'anesnp', name: '麻醉專科護理師',  pin: '2002' },
-  { id: 'ortho',  name: '骨科醫師',        pin: '3001' },
-  { id: 'ward',   name: '病房護理師',      pin: '4001' },
-  { id: 'pt',     name: '物理治療師',      pin: '5001' },
-  { id: 'diet',   name: '營養師',          pin: '6001' },
-  { id: 'pharm',  name: '藥師',            pin: '7001' }
+  { id: 'admin',  name: '後台管理者' },
+  { id: 'cm',     name: 'ERAS 個管師' },
+  { id: 'anesmd', name: '麻醉科醫師' },
+  { id: 'anesnp', name: '麻醉專科護理師' },
+  { id: 'ortho',  name: '骨科醫師' },
+  { id: 'ward',   name: '病房護理師' },
+  { id: 'pt',     name: '物理治療師' },
+  { id: 'diet',   name: '營養師' },
+  { id: 'pharm',  name: '藥師' }
 ];
 
 window.ERAS_CHECKLIST_SOURCE = '健保署 ERAS 推廣計畫附件七（115/8/4 修正）關節置換術';
@@ -34,6 +35,7 @@ window.ERAS_PAY_THRESHOLD = 0.6; // 支付規範：執行項目清單執行率�
   var NUM = function (k, label, unit, min, max, step) { return { k: k, label: label, type: 'number', unit: unit, min: min, max: max, step: step || 1 }; };
   var DATE = function (k, label) { return { k: k, label: label, type: 'date' }; };
   var TXT = function (k, label, req) { return { k: k, label: label, type: 'text', req: !!req }; };
+  var PONV = function (k, label) { return { k: k, label: label, type: 'select', options: ['無', '噁心', '嘔吐', '噁心＋嘔吐'] }; };
   var EVENT = [DATE('date', '日期'), TXT('dx', '診斷'), TXT('hosp', '處理醫院')];
 
   window.ERAS_CARE_LIST = [
@@ -74,8 +76,12 @@ window.ERAS_PAY_THRESHOLD = 0.6; // 支付規範：執行項目清單執行率�
     I('io6', '手術中', ['ortho'],  '6.手術失血預防', ['術中 Tranexamic acid 使用']),
     /* ◎手術後 */
     I('po1',  '手術後', ['anesnp'], '1.術後藥物止痛', ['口服止痛藥', 'PCEA', 'PCA', 'nerve block']),
-    I('po2',  '手術後', ['ward'],   '2.手術後暈吐評估', ['OP Day', 'POD1']),
-    I('po3',  '手術後', ['ward'],   '3.手術後疼痛指數評估', ['OP Day', 'POD1', 'POD2', 'POD3']),
+    /* 2026-11-28：加分數欄位（選填），供研究分析暈吐與疼痛 */
+    I('po2',  '手術後', ['ward'],   '2.手術後暈吐評估', ['OP Day', 'POD1'],
+      [PONV('ponv0', 'OP Day 暈吐'), PONV('ponv1', 'POD1 暈吐')]),
+    I('po3',  '手術後', ['ward'],   '3.手術後疼痛指數評估', ['OP Day', 'POD1', 'POD2', 'POD3'],
+      [NUM('pain0', 'OP Day 疼痛（最高）', '分', 0, 10), NUM('pain1', 'POD1 疼痛（最高）', '分', 0, 10),
+       NUM('pain2', 'POD2 疼痛（最高）', '分', 0, 10), NUM('pain3', 'POD3 疼痛（最高）', '分', 0, 10)]),
     I('po4',  '手術後', ['ortho'],  '4.拔除尿管', ['未放置', '術後該術式手術醫師每日評估拔除尿管時機']),
     I('po5',  '手術後', ['ortho'],  '5.拔除引流管', ['未放置', '術後該術式手術醫師每日評估拔除引流管時機']),
     I('po6',  '手術後', ['ortho'],  '6.減少術後過多輸液', ['可以喝水則不給常規點滴']),

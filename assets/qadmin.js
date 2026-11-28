@@ -35,7 +35,7 @@
     h.appendChild(el('span', 'q-when', showIso(q.createdAt)));
     h.appendChild(el('span', 'pt-mrn', q.mrn));
     h.appendChild(el('span', 'pt-name', q.name + (q.simulated ? '［模擬］' : '')));
-    h.appendChild(el('span', 'q-meta', (q.clinicDate ? '門診 ' + q.clinicDate + '｜' : '') + (q.who || '') + (q.nodeTitle ? '｜提問時觀看：' + q.nodeTitle : '')));
+    h.appendChild(el('span', 'q-meta', (window.ERAS_STORE.clinicDateOf(q.mrn, q.clinicDate) ? '門診 ' + window.ERAS_STORE.clinicDateOf(q.mrn, q.clinicDate) + '｜' : '') + (q.who || '') + (q.nodeTitle ? '｜提問時觀看：' + q.nodeTitle : '')));
     c.appendChild(h);
 
     var ct = el('div', 'q-contact');
@@ -100,7 +100,7 @@
   $('btnCopyQ').addEventListener('click', function () {
     var rows = [['提問時間', '姓名', '病歷號', '門診日期', '提問者', '電話', 'Email', '方便聯絡時段', '提問時觀看項目', '問題', '語音', '狀態', '聯絡紀錄', '模擬資料']];
     filtered().forEach(function (q) {
-      rows.push([showIso(q.createdAt), q.name, q.mrn, q.clinicDate, q.who, q.phone, q.email, q.contactTime, q.nodeTitle, q.text,
+      rows.push([showIso(q.createdAt), q.name, q.mrn, window.ERAS_STORE.clinicDateOf(q.mrn, q.clinicDate), q.who, q.phone, q.email, q.contactTime, q.nodeTitle, q.text,
         q.audio ? '有' : '無', q.status, (q.replies || []).map(function (r) { return showIso(r.at) + ' ' + r.role + '：' + r.note; }).join('／'),
         q.simulated ? '是' : '否']);
     });

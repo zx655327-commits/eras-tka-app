@@ -56,7 +56,7 @@
     var tb = $('tblAp').querySelector('tbody'); tb.innerHTML = '';
     Object.keys(by).sort(function (a, b) { return by[a].r.mrn < by[b].r.mrn ? -1 : 1; }).forEach(function (k) {
       var g = by[k], tr = document.createElement('tr');
-      tr.appendChild(td(g.r.mrn)); tr.appendChild(td(g.r.name + (g.r.simulated ? '［模擬］' : ''))); tr.appendChild(td(g.r.clinicDate || ''));
+      tr.appendChild(td(g.r.mrn)); tr.appendChild(td(g.r.name + (g.r.simulated ? '［模擬］' : ''))); tr.appendChild(td(window.ERAS_STORE.clinicDateOf(g.r.mrn, g.r.clinicDate) || ''));
       var bt = td(baseTxt(g.tp.T1)); if (g.tp.T1 && g.tp.T1.preIntervention === false) bt.className = 'sv-low'; tr.appendChild(bt);
       A.POINTS.forEach(function (t) {
         var r = g.tp[t.id];
@@ -80,7 +80,7 @@
     head = head.concat(['焦慮總分(1,2,4,5)', '資訊需求分數(3,6)', '焦慮≥' + A.CUT, '前測於衛教前', '模擬資料']);
     var rows = [head];
     filtered().sort(function (a, b) { return a.mrn === b.mrn ? (a.tp < b.tp ? -1 : 1) : (a.mrn < b.mrn ? -1 : 1); }).forEach(function (r) {
-      var row = [r.mrn, r.name, r.clinicDate, r.tp, tpName(r.tp), showIso(r.submittedAt)];
+      var row = [r.mrn, r.name, window.ERAS_STORE.clinicDateOf(r.mrn, r.clinicDate), r.tp, tpName(r.tp), showIso(r.submittedAt)];
       A.ITEMS.forEach(function (it) { row.push(r.answers[it.id] || ''); });
       var a = A.anxiety(r);
       rows.push(row.concat([a, A.info(r), a == null ? '' : (a >= A.CUT ? '是' : '否'), r.tp === 'T1' ? (r.preIntervention === true ? '是' : (r.preIntervention === false ? '否' : '未記錄')) : '', r.simulated ? '是' : '否']));

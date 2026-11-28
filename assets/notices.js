@@ -26,7 +26,7 @@
         mrn: n.mrn, name: n.name, site: n.site, surgeon: n.surgeon, by: n.by, at: new Date().toISOString(), readBy: {}, simulated: !!n.simulated };
       item.readBy[n.by] = item.at; // 發出者本人視為已讀
       list.push(item); save(list);
-      if (CFG.apiBase) { try { fetch(CFG.apiBase + '/notices', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item) }); } catch (e) {} }
+      if (CFG.apiBase && !CFG.cloudUrl) { try { fetch(CFG.apiBase + '/notices', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item) }); } catch (e) {} }
       refresh();
       return item;
     },
@@ -61,7 +61,7 @@
     '<div class="notice-act"><button type="button" class="btn" id="noticeAllRead">全部標示已讀</button>' +
     '<button type="button" class="btn-wide" id="noticeClose">關閉</button></div></div>';
   document.body.appendChild(ov);
-  $('noticeLimit').textContent = CFG.apiBase ? '' : '試用版：通知只會出現在同一台裝置上登入的職類；不同手機之間不會互相通知。';
+  $('noticeLimit').textContent = (CFG.apiBase || CFG.cloudUrl) ? '' : '試用版：通知只會出現在同一台裝置上登入的職類；不同手機之間不會互相通知。';
 
   var toast = document.createElement('div'); toast.className = 'notice-toast hidden'; toast.id = 'noticeToast';
   toast.addEventListener('click', function () { toast.classList.add('hidden'); open(); });
@@ -86,6 +86,14 @@
       var f = document.createElement('div'); f.className = 'notice-foot';
       f.textContent = '發出：' + roleName(x.by) + '｜已讀：' + (Object.keys(x.readBy).map(roleName).join('、') || '—');
       li.appendChild(f);
+      if (role && x.mrn) {
+        var go = document.createElement('button'); go.type = 'button'; go.className = 'ask-mini'; go.textContent = '開啟此病人填寫 →';
+        go.addEventListener('click', function () {
+          N.markRead(x.id, role); refresh(); close();
+          if (window.ERAS_TEAM && window.ERAS_TEAM.openPatient) window.ERAS_TEAM.openPatient(x.mrn);
+        });
+        li.appendChild(go);
+      }
       if (role && !x.readBy[role]) {
         var b = document.createElement('button'); b.type = 'button'; b.className = 'ask-mini'; b.textContent = '標示已讀';
         b.addEventListener('click', function () { N.markRead(x.id, role); refresh(); render(); });

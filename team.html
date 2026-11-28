@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
   <title>ERAS 團隊登入</title>
-  <link rel="stylesheet" href="assets/app.css" />
-  <link rel="stylesheet" href="assets/admin.css" />
+  <link rel="stylesheet" href="assets/app.css?v=r20261128zp" />
+  <link rel="stylesheet" href="assets/admin.css?v=r20261128zp" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#134e4a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -21,18 +21,18 @@
       <h1>ERAS 團隊登入</h1>
       <p class="sub">請選擇您的職類，並輸入該職類的專屬密碼</p>
       <div class="field"><label for="role">職類</label><select id="role" class="select"></select></div>
-      <div class="field"><label for="pin">密碼</label><input id="pin" type="password" inputmode="numeric" /></div>
+      <div class="field"><label for="pin">密碼</label><input id="pin" type="password" inputmode="numeric" autocomplete="current-password" /></div>
       <div class="privacy hidden" id="pinHint"></div>
       <div class="err" id="pinErr"></div>
       <button class="btn-wide" type="submit">登入</button>
-      <p class="privacy" style="margin-top:14px">測試版：密碼寫在程式設定中，只能防止誤入，不具資安保護。正式上線須改由院內帳號驗證身分。</p>
+      <p class="privacy" style="margin-top:14px">密碼由後台管理者於後台試算表「帳號密碼」工作表管理；忘記密碼或帳號被鎖定請洽後台管理者。</p>
     </form>
   </div>
 
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">ERAS 團隊<small id="whoRole">人工膝關節置換 ERAS 照護紀錄</small></div>
-      <a class="tb-btn" id="lnkPatient" href="index.html" style="text-decoration:none">開啟病人端</a>
+      <a class="tb-btn hidden" id="lnkPatient" href="index.html" style="text-decoration:none">開啟病人端</a>
       <button class="tb-btn" id="btnTeamLogout" type="button">登出</button>
     </div>
     <div class="test-banner" id="modeBanner"></div>
@@ -46,10 +46,11 @@
       <button class="tab adm" data-tab="survey" type="button">滿意度問卷</button>
       <button class="tab adm" data-tab="apais" type="button">APAIS 量表</button>
       <button class="tab adm" data-tab="records" type="button">衛教觀看紀錄</button>
-      <button class="tab adm" data-tab="research" type="button">研究資料</button>
+      <button class="tab adm super" data-tab="research" type="button">研究資料</button>
       <button class="tab adm" data-tab="review" type="button">內容審核狀態</button>
       <button class="tab adm" data-tab="share" type="button">QR Code</button>
       <button class="tab adm" data-tab="defs" type="button">指標定義</button>
+      <button class="tab adm super" data-tab="accounts" type="button">帳號管理</button>
     </div>
 
     <!-- 照護紀錄（各職類） -->
@@ -60,8 +61,31 @@
         <button class="btn" type="submit">查詢</button>
         <span class="err" id="mrnErr"></span>
       </form>
-      <div id="careEmpty" class="card empty-card">請先輸入病人病歷號，再填寫您職類的照護項目。</div>
+      <div id="careEmpty">
+        <div class="card todo-card hidden" id="cmTodo"></div>
+        <div class="card">
+          <h3 class="sec-h" style="margin-top:0">收案中的病人</h3>
+          <p class="hint" id="wlHint">點一位病人即可開始填寫；「待您填寫」＝您職類負責、尚未紀錄的項目數。也可以在上方直接輸入病歷號。</p>
+          <div class="toolbar"><input type="search" id="wlQ" placeholder="搜尋病歷號或姓名" />
+            <label class="scope"><input type="checkbox" id="wlMine" checked /> 只顯示還有待我填寫的病人</label>
+            <span class="grow"></span>
+            <button class="btn" type="button" id="btnPrintAll">🖨 列印清單中全部病人（每人一頁）</button>
+            <button class="btn ghost" type="button" id="btnCsvAll">下載全部病人執行清單（Excel）</button></div>
+          <p class="hint">一次下載／列印的是「下方清單目前列出的病人」。要全部病人，請先取消勾選「只顯示還有待我填寫的病人」並清空搜尋。</p>
+          <div class="table-wrap">
+            <table class="grid wl" id="tblWork">
+              <thead><tr><th>病歷號</th><th>姓名</th><th>手術日期</th><th>手術側</th><th>床號</th><th>待您填寫</th><th>清單執行率</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <p class="empty hidden" id="wlEmpty">目前沒有符合的病人。</p>
+          </div>
+        </div>
+      </div>
       <div id="careBody" class="hidden">
+        <div class="toolbar"><button class="btn ghost" type="button" id="btnBackList">← 回病人清單</button>
+          <span class="grow"></span>
+          <button class="btn" type="button" id="btnPrintPt">🖨 列印／存成 PDF（此病人執行清單）</button>
+          <button class="btn ghost" type="button" id="btnCsvPt">下載 Excel（CSV）</button></div>
         <div class="card pt-card" id="ptCard"></div>
         <div class="card rate-card" id="careRate"></div>
         <div class="card hidden" id="tbCard"></div>
@@ -69,6 +93,10 @@
         <p class="hint">項目依健保署「術後加速康復推廣計畫」附件七關節置換術執行項目清單（115/8/4 修正）。各項目的負責職類為暫定分工，待 ERAS 團隊確認。每次儲存都會留下一筆紀錄並顯示執行時間；執行率以每個項目最新一筆紀錄計算。</p>
         <label class="scope hidden" id="careScopeWrap"><input type="checkbox" id="careScope" /> 顯示全部項目（代其他職類登錄）</label>
         <div id="careItems"></div>
+        <div class="save-bar hidden" id="saveBar">
+          <span id="saveBarTxt"></span>
+          <button class="btn" type="button" id="btnSaveAll">全部儲存</button>
+        </div>
         <h3 class="sec-h">本病人照護時間軸（全部職類）</h3>
         <div class="table-wrap">
           <table class="grid" id="tblTimeline">
@@ -89,7 +117,7 @@
         <button type="button" class="btn ghost" id="btnCopyQ">複製提問清單（可貼到 Excel）</button>
       </div>
       <textarea id="copyBoxQ" class="copybox hidden" rows="5" readonly aria-label="複製內容"></textarea>
-      <p class="hint">測試版：只看得到在這台裝置送出的提問。正式上線需改存院內伺服器，個管師才能收到所有病人的提問；電話與 Email 屬個人資料，請依院內規定使用。</p>
+      <p class="hint">病人從自己手機送出的提問會自動傳回後台（每 30 秒更新）。電話與 Email 屬個人資料，請依院內規定使用。</p>
       <div id="qList"></div>
       <p class="empty hidden" id="qEmpty">目前沒有病人提問。</p>
     </section>
@@ -196,6 +224,7 @@
 
       <div class="card hidden" id="detailCard" style="margin-top:16px">
         <div class="detail-head"><h3 id="detailTitle"></h3><button type="button" class="btn ghost" id="btnCloseDetail">關閉</button></div>
+        <div class="clinic-edit" id="clinicEdit"></div>
         <div class="table-wrap">
           <table class="grid" id="tblDetail">
             <thead><tr><th>階段</th><th>項目</th><th>類型</th><th class="num">觀看次數</th><th class="num">觀看時間</th><th class="num">影片播放時間</th><th>影片看完</th><th class="num">理解自我檢核（病人自評）</th><th>完成</th><th>最後觀看</th></tr></thead>
@@ -214,7 +243,7 @@
 
     <!-- 內容審核 -->
     <section class="pane hidden" id="pane-review">
-      <p class="lead">標示「待確認」的項目，是依步驟 1 待確認清單修改的衛教內容，需請麻醉科、骨科或藥劑部確認後才能正式上線。</p>
+      <p class="lead">標示「待確認」的項目需請麻醉科、骨科或藥劑部確認後才能正式上線。<span class="rev">紅字粗體＝2026-11-28 依健保 ERAS 推廣計畫附件七新增或修改的內容。</span></p>
       <div class="table-wrap">
         <table class="grid" id="tblReview">
           <thead><tr><th>階段</th><th>項目</th><th>類型</th><th>影片</th><th>審核狀態</th></tr></thead>
@@ -228,12 +257,12 @@
       <p class="lead">病人端網址（上線後請改成正式網址）：</p>
       <div class="toolbar"><input type="url" id="shareUrl" style="flex:1;min-width:260px" /><button type="button" class="btn" id="btnCopy">複製網址</button></div>
       <div id="qr" class="qr"></div>
-      <p class="hint">QR Code 只包含網址，不含任何病人資料。病人掃碼後，需自行輸入姓名、病歷號與門診日期。</p>
+      <p class="hint">QR Code 只包含網址，不含任何病人資料。病人掃碼後，需自行輸入姓名與病歷號（門診日期不再由病人輸入，自動記錄為第一次登入當天）。病人開始輸入病歷號後，登入頁右上角「ERAS團隊」按鈕會鎖住；團隊人員請在病歷號欄空白時點選，或直接開啟 team.html。</p>
     </section>
 
     <!-- 研究資料（依研究編號匯出） -->
     <section class="pane hidden" id="pane-research">
-      <p class="hint">一列＝一位病人（同一病歷號的多次登入合併）。「去識別化」版本只含研究編號，不含病歷號與姓名；研究編號請在「照護紀錄」頁的 Teach-back 查核表輸入。焦慮（VAS-A）依計畫書以紙本施測，不在 App 內收集。資料僅存在這台裝置。</p>
+      <p class="hint">一列＝一位病人（同一病歷號的多次登入合併）。「去識別化」版本只含研究編號，不含病歷號與姓名；研究編號請在「照護紀錄」頁的 Teach-back 查核表輸入。焦慮（VAS-A）依計畫書以紙本施測，不在 App 內收集。資料來自後台（Google 試算表）同步，所有病人與團隊裝置的資料都會納入；畫面上方會顯示最後同步時間。</p>
       <div class="toolbar">
         <span class="grow"></span>
         <button type="button" class="btn" id="btnRsCopyId">複製（去識別化，僅研究編號）</button>
@@ -248,6 +277,26 @@
     </section>
 
     <!-- 指標定義 -->
+    <section class="pane hidden" id="pane-accounts">
+      <p class="lead">各職類帳號狀態。連續輸錯密碼 5 次會自動鎖定；管理者可在此鎖定、解鎖或重設密碼。密碼存在後台試算表「帳號密碼」工作表，畫面不顯示現有密碼。</p>
+      <div class="toolbar"><button class="btn" type="button" id="btnAccReload">重新整理</button> <span id="accMsg"></span></div>
+      <div class="table-wrap">
+        <table class="grid" id="tblAcc">
+          <thead><tr><th>職類</th><th>權限</th><th>狀態</th><th>連續錯誤次數</th><th>最後異動</th><th>操作</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h3 class="sec-h">操作紀錄（最近 300 筆）</h3>
+      <p class="hint">記錄各職類的登入、登入失敗、帳號鎖定／解鎖／重設密碼，以及照護紀錄、門診日期、手術資料、teach-back、通知等團隊資料的新增、修改、刪除。完整紀錄在後台試算表「操作紀錄」工作表。</p>
+      <div class="toolbar"><button class="btn ghost" type="button" id="btnLogLoad">載入操作紀錄</button> <span id="logMsg"></span></div>
+      <div class="table-wrap">
+        <table class="grid" id="tblLog">
+          <thead><tr><th>時間</th><th>職類</th><th>動作</th><th>內容</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="pane hidden" id="pane-defs">
       <table class="grid defs">
         <thead><tr><th>指標</th><th>定義</th><th>資料來源</th></tr></thead>
@@ -257,34 +306,35 @@
           <tr><td>影片播放時間</td><td>該項目影片實際播放的累計秒數（快轉跳過的部分不計）。</td><td>影片播放進度</td></tr>
           <tr><td>總觀看時間</td><td>同一位病人所有項目「觀看時間」的加總。</td><td>由上述欄位計算</td></tr>
           <tr><td>主要項目已看</td><td>主線項目中觀看次數 ≥ 1 的項目數，除以主線項目總數。補充說明（分流）項目不列入分母。</td><td>由上述欄位計算</td></tr>
-          <tr><td>主要項目已完成</td><td>主線項目中「完成」的項目數 ÷ 主線項目總數。完成＝影片播放到最後（多段影片須播完最後一段；影片無法播放時，聽完文字朗讀視同看完；無影片項目進入即算）<b>且</b>該項目「理解自我檢核」全部打勾（病人自評，非醫護人員評核，不列入衛教理解達成率）。檢核表要等影片看完才能勾選；取消任一勾選即恢復為未完成。</td><td>病人端影片播放結束事件、理解自我檢核勾選</td></tr>
+          <tr><td>主要項目已完成</td><td>主線項目中「完成」的項目數 ÷ 主線項目總數。完成＝影片播放到最後（多段影片須播完最後一段；影片無法播放時，聽完文字朗讀或停留閱讀達規定秒數視同看完；無影片項目須聽完朗讀，或停留閱讀依字數 12～60 秒）<b>且</b>該項目「理解自我檢核」全部打勾（病人自評，非醫護人員評核，不列入衛教理解達成率）。檢核表要等上述條件達成才能勾選；病人可逐項勾選，或按「以上 N 項我都了解了」一次勾完；取消任一勾選即恢復為未完成。</td><td>病人端影片播放結束事件、理解自我檢核勾選</td></tr>
           <tr><td>衛教理解達成率</td><td>依 11/19 論文計畫書：ERAS 個管師以 teach-back 理解查核表評估五個衛教階段各 3 項、共 15 項核心確認項目，各項評為已理解、部分理解、尚未理解或未評估（須記錄原因）。<b>首次通過率</b>＝首次評為「已理解」項目數 ÷ 15 × 100%；<b>再次衛教後達成率</b>＝最後一次評為「已理解」項目數 ÷ 15 × 100%。未評估項目不視為已理解，也不自分母排除，另列數量與原因。病人在 App 內的勾選式自我檢核不列入。</td><td>團隊端「照護紀錄」頁之 Teach-back 理解查核表（個管師）</td></tr>
           <tr><td>App 使用情形</td><td>T0 至 T1 期間：五個衛教階段（不含開場、結語）各自的影片播放次數（影片從頭開始播放即計 1 次）、觀看日期數、首次與最後觀看時間、完成之主要項目數與完成之衛教階段數（該階段主要項目全部完成；開場、結語不列入）。<b>再次衛教（自主複習）次數</b>：教導病人或家屬於任何時間、不限次數回 App 複習；T0 至 T1 期間各衛教項目第 2 次以後的觀看各計 1 次（有影片的項目以影片從頭播放次數計，無影片的項目以進入次數計），另列複習日數（首次觀看日以外的觀看日數）。teach-back 的「再次評估項目數」另列，不與自主複習混用。</td><td>病人端播放紀錄、teach-back 查核表</td></tr>
           <tr><td>ERAS 清單執行率</td><td>每個項目取最新一筆紀錄，狀態為「已執行」的項目數 ÷ 清單項目總數（關節置換術 47 項）。尚未紀錄的項目視為未執行。健保支付規範要求達 60% 以上；官方是否排除「不適用」項目，待確認。</td><td>ERAS 團隊照護紀錄</td></tr>
-          <tr><td>滿意度平均分數</td><td>院內現行 ERAS 病人滿意度調查表，非常滿意 5 分～非常不滿意 1 分（網頁設定）。各題平均＝分數加總 ÷ 該題填答人數；「滿意＋非常滿意」比率＝選這兩項的人數 ÷ 該題填答人數。第 16 題僅曾有手術經驗者作答。每位病人（病歷號＋門診日期）保留最後一次填寫的答案。</td><td>病人端出院滿意度問卷</td></tr>
+          <tr><td>滿意度平均分數</td><td>院內現行 ERAS 病人滿意度調查表，非常滿意 5 分～非常不滿意 1 分（網頁設定）。各題平均＝分數加總 ÷ 該題填答人數；「滿意＋非常滿意」比率＝選這兩項的人數 ÷ 該題填答人數。第 16 題僅曾有手術經驗者作答。每位病人（病歷號）保留最後一次填寫的答案。</td><td>病人端出院滿意度問卷</td></tr>
           <tr id="defApais"><td>APAIS 焦慮／資訊需求分數</td><td>Amsterdam Preoperative Anxiety and Information Scale（Moerman et al., 1996）；中文題目採 Wu et al.（2020）。焦慮＝第 1、2、4、5 題加總（4–20），≥ 11 分為術前焦慮；資訊需求＝第 3、6 題加總（2–10）。時間點：門診後・衛教前（T1，前測，須於觀看任何衛教影片前完成）、手術前（T2）。焦慮總分與資訊需求分數於送出時計算並儲存。統計以該時間點有完整 6 題的填答者為分母。</td><td>病人端 APAIS 量表</td></tr>
-          <tr><td>同一位病人</td><td>病歷號＋門診日期相同，視為同一位病人，多次登入的紀錄會累加。</td><td>登入資料</td></tr>
+          <tr><td>同一位病人</td><td>病歷號相同即視為同一位病人，多次登入（含不同日期、不同手機）的紀錄會累加。「門診日期」自 2026-11-28 起不再由病人輸入：App 先記為該病歷號<b>第一次登入 App 的日期</b>並標示「待確認」，由 ERAS 個管師在「觀看紀錄」→ 病人明細，依病歷核對後按「確認門診日期」。確認後，各頁面與 CSV 一律使用確認的門診日期（CSV 另有「門診日期已確認」欄）；研究分析（T0）請只採用已確認者。每次使用 App 的日期另記於 clinicDates。</td><td>登入資料</td></tr>
         </tbody>
       </table>
     </section>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="assets/nodes.js"></script>
-  <script src="assets/store.js"></script>
-  <script>window.ERAS_CONFIG.demo = true; window.ERAS_CONFIG.trialMrn = '*'; window.ERAS_CONFIG.hidePins = true;</script>
-  <script src="assets/care_items.js"></script>
-  <script src="assets/questions.js"></script>
-  <script src="assets/notices.js"></script>
-  <script src="assets/team.js"></script>
-  <script src="assets/teachback.js"></script>
-  <script src="assets/research.js"></script>
-  <script src="assets/qadmin.js"></script>
-  <script src="assets/survey.js"></script>
-  <script src="assets/sadmin.js"></script>
-  <script src="assets/apais.js"></script>
-  <script src="assets/apadmin.js"></script>
-  <script src="assets/admin.js"></script>
-  <script src="assets/install.js"></script>
+  <script src="assets/nodes.js?v=r20261128zp"></script>
+  <script src="assets/store.js?v=r20261128zp"></script>
+  <script src="assets/cloud.js?v=r20261128zp"></script>
+  <script src="assets/care_items.js?v=r20261128zp"></script>
+  <script src="assets/questions.js?v=r20261128zp"></script>
+  <script src="assets/notices.js?v=r20261128zp"></script>
+  <script src="assets/team.js?v=r20261128zp"></script>
+  <script src="assets/teachback.js?v=r20261128zp"></script>
+  <script src="assets/research.js?v=r20261128zp"></script>
+  <script src="assets/qadmin.js?v=r20261128zp"></script>
+  <script src="assets/survey.js?v=r20261128zp"></script>
+  <script src="assets/sadmin.js?v=r20261128zp"></script>
+  <script src="assets/apais.js?v=r20261128zp"></script>
+  <script src="assets/apadmin.js?v=r20261128zp"></script>
+  <script src="assets/admin.js?v=r20261128zp"></script>
+  <script src="assets/accounts.js?v=r20261128zp"></script>
+  <script src="assets/install.js?v=r20261128zp"></script>
 </body>
 </html>

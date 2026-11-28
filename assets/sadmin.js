@@ -43,7 +43,7 @@
       var tr = document.createElement('tr');
       tr.appendChild(td(showIso(s.createdAt) + (s.updatedAt ? '（修改 ' + showIso(s.updatedAt) + '）' : '')));
       tr.appendChild(td(s.name + (s.simulated ? '［模擬］' : '')));
-      tr.appendChild(td(s.mrn)); tr.appendChild(td(s.clinicDate || ''));
+      tr.appendChild(td(s.mrn)); tr.appendChild(td(window.ERAS_STORE.clinicDateOf(s.mrn, s.clinicDate) || ''));
       tr.appendChild(td(s.basic.campus)); tr.appendChild(td(s.basic.age, 'num')); tr.appendChild(td(s.basic.edu));
       tr.appendChild(td(s.basic.surgery)); tr.appendChild(td(src(s)));
       S.LIKERT.forEach(function (it) {
@@ -69,7 +69,7 @@
     head = head.concat(['17.意見或建議', '第1–14題平均', '模擬資料']);
     var rows = [head];
     filtered().forEach(function (s) {
-      var r = [showIso(s.createdAt), showIso(s.updatedAt), s.name, s.mrn, s.clinicDate, s.basic.campus, s.basic.age, s.basic.edu, s.basic.surgery, src(s)];
+      var r = [showIso(s.createdAt), showIso(s.updatedAt), s.name, s.mrn, window.ERAS_STORE.clinicDateOf(s.mrn, s.clinicDate), s.basic.campus, s.basic.age, s.basic.edu, s.basic.surgery, src(s)];
       S.LIKERT.forEach(function (it) { if (it.id === 'q16') r.push(s.prior); r.push(S.score(s, it.id) || ''); });
       rows.push(r.concat([s.comment, S.mean(s).toFixed(2), s.simulated ? '是' : '否']));
     });

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>人工膝關節置換ERAS影音衛教個管師</title>
-  <link rel="stylesheet" href="assets/app.css" />
+  <link rel="stylesheet" href="assets/app.css?v=r20261128zp" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#134e4a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -16,24 +16,24 @@
 <body>
   <!-- 登入 -->
   <div id="loginOverlay" class="overlay">
+    <a class="team-link team-link-corner" href="team.html" title="ERAS 團隊各職類登入">ERAS團隊</a>
     <form class="login" id="loginForm" autocomplete="off" novalidate>
       <h1>人工膝關節置換ERAS影音衛教個管師</h1>
-      <p class="sub">ERAS 團隊｜外部試用版，請輸入測試病歷號</p>
+      <p class="sub login-sub">請輸入<b>姓名</b>和<b>病歷號</b>就可以開始。<br>家屬可以幫忙操作，請陪長輩一起看。</p>
       <div class="field">
         <label for="inName">姓名</label>
         <input id="inName" type="text" maxlength="30" required />
       </div>
       <div class="field">
-        <label for="inMrn">病歷號</label>
-        <input id="inMrn" type="text" maxlength="20" inputmode="text" required />
+        <label for="inMrn">病歷號（在掛號單或藥袋上）</label>
+        <input id="inMrn" type="text" maxlength="20" inputmode="text" autocapitalize="characters" required />
       </div>
-      <div class="field">
+      <div class="field hidden">
         <label for="inDate">門診日期</label>
-        <input id="inDate" type="date" required />
+        <input id="inDate" type="date" />
       </div>
       <div class="privacy" id="privacyNote">
-        您輸入的姓名、病歷號與觀看紀錄，只提供您的醫療團隊了解衛教觀看情形。
-        <strong>測試版：</strong>目前紀錄只存在這台裝置，請勿在公用裝置使用，看完請按「登出」。
+        觀看紀錄只提供您的醫療團隊了解衛教情形。下次登入輸入同一個病歷號，就會接著上次的地方看。
       </div>
       <div class="err" id="loginErr"></div>
       <button type="submit" class="btn-wide">開始觀看</button>
@@ -41,14 +41,32 @@
     </form>
   </div>
 
+  <!-- 第一次使用：3 步驟說明 -->
+  <div id="onboard" class="remind-ov hidden" role="dialog" aria-labelledby="onboardH">
+    <div class="remind-box onboard-box">
+      <div class="done-h" id="onboardH">歡迎！</div>
+      <ol class="onboard-steps">
+        <li><b>這是什麼？</b><span>這是膝關節手術前後要知道的事。<br>「ERAS」就是<b>讓您開完刀恢復得更快、更安全</b>的照護方式。</span></li>
+        <li><b>① 看影片</b><span>影片會自己播放。沒聽清楚，按「⏪ 倒退」再聽一次。</span></li>
+        <li><b>② 打勾</b><span>看完後，往下把「看懂了」的項目打勾。</span></li>
+        <li><b>③ 下一項</b><span>打勾後按「下一步」。</span></li>
+        <li><b>慢慢看就好</b><span>全部約 15～20 分鐘，<b>可以分好幾天看</b>，每次看一段就好。下次登入會接著看。<br>有問題，按右下角「我有疑問」。</span></li>
+      </ol>
+      <p class="onboard-pg" id="onboardPg"></p>
+      <button type="button" class="btn-wide" id="onboardGo">下一步 ▶</button>
+    </div>
+  </div>
+
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand">人工膝關節置換ERAS影音衛教個管師<small id="whoami"></small></div>
-      <a class="tb-btn hidden" id="lnkAdmin" href="team.html" style="text-decoration:none">ERAS 團隊登入</a>
-      <button class="tb-btn" id="btnFont" type="button">大字體</button>
-      <button class="tb-btn" id="btnLogout" type="button">登出</button>
+      <div class="brand"><span class="brand-full">人工膝關節置換ERAS影音衛教個管師</span><span class="brand-short">ERAS 膝關節衛教</span><small id="whoami"></small></div>
+      <div class="tb-actions">
+        <button class="tb-btn" id="btnFont" type="button">大字體</button>
+        <a class="team-link hidden" id="lnkAdmin" href="team.html" title="ERAS 團隊各職類登入">ERAS團隊</a>
+        <button class="tb-logout" id="btnLogout" type="button" title="登出">登出</button>
+      </div>
     </div>
-    <div class="test-banner">測試版：衛教內容尚待院內審核，實際停藥與禁食請以醫護人員給您的指示為準。</div>
+    <div class="test-banner">實際停藥、禁食時間與用藥，請以醫護人員給您的指示為準。</div>
   </header>
 
   <nav class="stages" id="stages" aria-label="衛教進度"></nav>
@@ -56,14 +74,19 @@
   <main class="layout">
     <section>
       <div class="player" id="player">
-        <video id="video" playsinline controls preload="metadata"></video>
+        <video id="video" playsinline preload="metadata"></video>
+        <div class="vprog" id="vprog" aria-hidden="true"><i id="vprogBar"></i></div>
+        <button type="button" class="play-hint hidden" id="playHint">👆 請按這裡開始播放</button>
         <div class="voice-card hidden" id="voiceCard">
+          <div class="video-err hidden" id="videoErr">⚠ 影片暫時無法播放，已改為文字與朗讀。<button type="button" id="btnRetry">🔄 重新載入影片</button></div>
           <div class="label">語音解說（可按下方按鈕朗讀）</div>
           <p id="voiceText"></p>
         </div>
         <div class="player-bar">
           <button type="button" id="btnPlay">▶ 播放</button>
-          <button type="button" class="ghost" id="btnRate">語速：慢</button>
+          <button type="button" class="ghost" id="btnRewind" title="倒退 10 秒">⏪ 倒退</button>
+          <button type="button" class="ghost" id="btnRate">🐢 放慢</button>
+          <span class="vol-tip">🔊 聲音太小？按手機側邊的音量鍵</span>
           <span id="clipLabel"></span>
           <div class="clip-dots" id="clipDots"></div>
         </div>
@@ -76,12 +99,47 @@
       <div class="core" id="nodeCore"></div>
       <div class="redflag hidden" id="nodeFlag"><strong>請立即向醫護人員反映</strong><span></span></div>
 
-      <div class="question hidden" id="nodeQuestion"></div>
-      <div class="options" id="nodeOptions"></div>
+      <!-- 2026-11-28：要做的事（工具、自我檢核、問卷）緊接在重點之後，選項與下一步之前 -->
+      <div class="card hidden" id="toolFasting">
+        <h3>術前禁食試算器</h3>
+        <div class="tool">
+          <div class="surg-mode" role="radiogroup" aria-label="手術時間">
+            <label><input type="radio" name="surgMode" value="known" checked /> 已知手術時間</label>
+            <label><input type="radio" name="surgMode" value="unknown" /> 手術時間未確定</label>
+          </div>
+          <div id="surgKnown">
+            <label for="surgTime">預計手術時間：</label>
+            <input type="time" id="surgTime" value="08:00" />
+          </div>
+          <div id="surgUnknown" class="surg-unknown hidden">
+            手術時間還沒確定時，請先以<b>最早可能的手術時間（當日早上 <span id="earliestTxt">08:00</span>）</b>準備，下方截止時間已依此計算。<br>
+            確定手術時間後，病房護理師會通知您，再依通知調整；若一直未接到通知，請詢問護理師，<b>不要自行延長禁食或提早進食</b>。
+          </div>
+          <div class="cut solid"><span>固體食物、牛奶豆漿截止（前 8 小時）</span><span id="cutSolid"></span></div>
+          <div class="cut liquid"><span>清流質截止（前 2 小時）</span><span id="cutLiquid"></span></div>
+        </div>
+      </div>
 
-      <div class="nav-row">
-        <button type="button" class="btn-back" id="btnBack">← 上一步</button>
-        <button type="button" class="btn-next" id="btnNext">下一步 →</button>
+      <div class="card hidden" id="toolAnkle">
+        <h3>踝幫浦運動跟練</h3>
+        <div class="ankle-opts">
+          <label>目標：<select id="ankleTarget"><option value="10" selected>10 下</option><option value="20">20 下</option></select></label>
+          <label><input type="checkbox" id="ankleSound" checked /> 語音數拍與提示音</label>
+        </div>
+        <div class="ankle-stage" id="ankleStage">
+          <div class="ankle-foot" id="ankleFoot" aria-hidden="true">🦶</div>
+          <div class="ankle-cue" id="ankleCue">按下開始，跟著節拍一起做</div>
+          <div class="ankle-beat" id="ankleBeat"></div>
+          <div class="ankle-dots" id="ankleDots"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="ankle-prog">第 <b id="ankleCount">0</b> / <span id="ankleTotal">10</span> 下</div>
+        <button type="button" class="btn-wide" id="btnAnkle">開始跟練</button>
+      </div>
+
+      <div class="card hidden" id="checkCard">
+        <h3>看懂了就打勾 ✔</h3>
+        <div id="checklist"></div>
+        <p class="check-st" id="checkStatus"></p>
       </div>
 
       <div class="card sv-card hidden" id="surveyCard">
@@ -89,6 +147,15 @@
         <p id="svStatus"></p>
         <button type="button" class="btn-wide" id="btnSurvey">開始填寫</button>
       </div>
+
+      <div class="question hidden" id="nodeQuestion"></div>
+      <div class="options" id="nodeOptions"></div>
+
+      <div class="nav-row">
+        <button type="button" class="btn-back" id="btnBack">↩ 回上一頁</button>
+        <button type="button" class="btn-next" id="btnNext">下一步 →</button>
+      </div>
+
     </section>
 
     <aside style="display:flex;flex-direction:column;gap:16px">
@@ -102,28 +169,7 @@
         <p class="ap-note">共 6 題，約 1 分鐘。請在下列兩個時間各填一次。</p>
         <div id="apaisPoints"></div>
       </div>
-      <div class="card hidden" id="toolFasting">
-        <h3>術前禁食試算器</h3>
-        <div class="tool">
-          <label for="surgTime">預計手術時間：</label>
-          <input type="time" id="surgTime" value="08:00" />
-          <div class="cut solid"><span>固體食物、牛奶豆漿截止（前 8 小時）</span><span id="cutSolid"></span></div>
-          <div class="cut liquid"><span>清流質截止（前 2 小時）</span><span id="cutLiquid"></span></div>
-        </div>
-      </div>
 
-      <div class="card hidden" id="toolAnkle">
-        <h3>踝幫浦運動跟練</h3>
-        <div class="ankle-cue" id="ankleCue">按下開始，跟著節拍一起做</div>
-        <div style="font-size:.8em;color:var(--muted);text-align:center;margin-bottom:8px">已完成 <b id="ankleCount">0</b> 下</div>
-        <button type="button" class="btn-wide" id="btnAnkle">開始跟練</button>
-      </div>
-
-      <div class="card hidden" id="checkCard">
-        <h3>我的理解自我檢核</h3>
-        <div id="checklist"></div>
-        <p class="check-st" id="checkStatus"></p>
-      </div>
 
       <div class="card">
         <h3>衛教目錄</h3>
@@ -134,7 +180,7 @@
 
 
   <!-- 我有疑問 -->
-  <button type="button" class="ask-fab" id="btnAsk" aria-haspopup="dialog">💬 我有疑問</button>
+  <button type="button" class="ask-fab" id="btnAsk" aria-haspopup="dialog" aria-label="我有疑問"><span class="fab-ic">💬</span><span class="fab-tx">我有疑問</span></button>
   <div id="askOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="askTitle">
     <div class="login ask-box">
       <div class="ask-head"><h1 id="askTitle">我有疑問</h1><button type="button" class="ask-x" id="askClose" aria-label="關閉">✕</button></div>
@@ -148,14 +194,17 @@
           </div>
           <div class="ask-voice">
             <button type="button" class="ask-mini" id="btnRec">🎤 按此錄音</button>
-            <button type="button" class="ask-mini hidden" id="btnDictate">🗣 語音轉文字</button>
             <span class="ask-note" id="askRecTime"></span>
           </div>
           <div class="ask-note" id="askRecHint">錄音最長 90 秒，個管師可以直接聽您的聲音。</div>
-          <div class="field ask-file" id="askFileWrap">
-            <label for="askFile" class="ask-file-btn">🎙 用手機錄音／選擇語音檔</label>
-            <input id="askFile" class="ask-file-input" type="file" accept="audio/*" capture />
-          </div>
+          <details class="ask-more" id="askMore">
+            <summary>其他方式（語音轉文字、選擇錄好的語音檔）</summary>
+            <button type="button" class="ask-mini hidden" id="btnDictate">🗣 語音轉文字</button>
+            <div class="field ask-file" id="askFileWrap">
+              <label for="askFile" class="ask-file-btn">🎙 用手機錄音／選擇語音檔</label>
+              <input id="askFile" class="ask-file-input" type="file" accept="audio/*" capture />
+            </div>
+          </details>
           <div class="ask-audio hidden" id="askAudioBox"></div>
           <div class="ask-row">
             <div class="field"><label for="askPhone">聯絡電話</label><input id="askPhone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="0912345678" /></div>
@@ -220,14 +269,14 @@
     </div>
   </div>
 
-  <script src="assets/nodes.js"></script>
-  <script src="assets/store.js"></script>
-  <script>window.ERAS_CONFIG.demo = true; window.ERAS_CONFIG.trialMrn = '*'; window.ERAS_CONFIG.hidePins = true;</script>
-  <script src="assets/apais.js"></script>
-  <script src="assets/app.js"></script>
-  <script src="assets/questions.js"></script>
-  <script src="assets/ask.js"></script>
-  <script src="assets/survey.js"></script>
-  <script src="assets/install.js"></script>
+  <script src="assets/nodes.js?v=r20261128zp"></script>
+  <script src="assets/store.js?v=r20261128zp"></script>
+  <script src="assets/cloud.js?v=r20261128zp"></script>
+  <script src="assets/apais.js?v=r20261128zp"></script>
+  <script src="assets/app.js?v=r20261128zp"></script>
+  <script src="assets/questions.js?v=r20261128zp"></script>
+  <script src="assets/ask.js?v=r20261128zp"></script>
+  <script src="assets/survey.js?v=r20261128zp"></script>
+  <script src="assets/install.js?v=r20261128zp"></script>
 </body>
 </html>

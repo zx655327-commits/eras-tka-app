@@ -205,3 +205,219 @@ body { padding-bottom: 84px; }
 .prog-left { margin: 4px 0 0; padding-left: 1.2em; font-size: .85em; color: var(--muted); }
 .prog-left li { cursor: pointer; text-decoration: underline dotted; margin: 2px 0; }
 
+
+/* 朗讀跟讀標示：正在念的字、所在句子、已念過 */
+#voiceText .tts-now { background: #ea580c; color: #fff; border-radius: 3px; font-weight: 700; box-shadow: 0 0 0 2px #ea580c; }
+#voiceText .tts-sent { color: #fde68a; text-decoration: underline; text-decoration-color: #fbbf24; text-underline-offset: 4px; }
+#voiceText .tts-done { color: #94a3b8; }
+#voiceText span { transition: background-color .15s, color .15s; }
+
+
+/* 衛教圖卡 */
+.node-imgs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 12px 0; }
+.node-imgs img { width: 100%; height: auto; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.15); cursor: zoom-in; background: #f1f5f9; }
+.node-imgs img.zoom { position: fixed; inset: 0; margin: auto; width: auto; max-width: 96vw; max-height: 92vh; z-index: 1000; cursor: zoom-out; box-shadow: 0 0 0 100vmax rgba(0,0,0,.75); border-radius: 8px; }
+
+
+/* 我的學習進度：依狀態區分顏色（2026-11-28） */
+.prog-all { list-style: none; padding-left: 0; }
+.prog-all li { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; padding: 3px 4px; border-radius: 6px; }
+.prog-all li i { font-style: normal; font-weight: 900; width: 1.2em; text-align: center; flex: none; }
+.prog-all li.st-done { color: #15803d; }
+.prog-all li.st-done span { text-decoration: none; }
+.prog-all li.st-seen { color: #c2410c; font-weight: 700; }
+.prog-all li.st-new { color: #94a3b8; }
+.prog-all li.cur { background: #ecfdf5; outline: 2px solid #99f6e4; }
+.prog-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .82em; margin: 6px 0 8px; }
+.prog-legend span { display: inline-flex; gap: 4px; align-items: center; }
+.prog-legend i { font-style: normal; font-weight: 900; }
+.prog-legend .st-done { color: #15803d; } .prog-legend .st-seen { color: #c2410c; } .prog-legend .st-new { color: #94a3b8; }
+
+/* 提醒視窗：影片下方還要點選的部分 */
+.remind-ov { position: fixed; inset: 0; background: rgba(15,23,42,.55); z-index: 900; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.remind-ov.hidden { display: none; }
+.remind-box { background: #fff; border-radius: 18px; max-width: 460px; width: 100%; padding: 22px 20px; box-shadow: 0 10px 40px rgba(0,0,0,.3); border-top: 8px solid #ea580c; }
+.remind-h { font-size: 1.2em; font-weight: 900; color: #9a3412; margin-bottom: 10px; }
+.remind-list { margin: 0 0 16px 1.1em; padding: 0; font-size: 1.05em; line-height: 1.7; color: #1f2937; }
+.remind-list li { margin-bottom: 4px; }
+.remind-btns { display: flex; flex-direction: column; gap: 8px; }
+@keyframes pulseHi { 0%,100% { box-shadow: 0 0 0 0 rgba(234,88,12,0); } 30%,70% { box-shadow: 0 0 0 6px rgba(234,88,12,.55); } }
+.pulse { animation: pulseHi 1.1s ease-in-out 3; border-radius: 14px; }
+
+/* 自我檢核完成提示 */
+.done-toast { position: fixed; left: 16px; right: 16px; margin: 0 auto; width: fit-content; bottom: 96px; transform: translateY(20px); background: #15803d; color: #fff; font-weight: 900; font-size: 1.05em; padding: 12px 20px; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.25); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 950; max-width: calc(100vw - 32px); text-align: center; line-height: 1.4; }
+.done-toast.show { opacity: 1; transform: translateY(0); }
+
+/* 完成視窗：前往下一項／再看一次 */
+.done-box2 { border-top-color: #15803d; text-align: center; }
+.done-h { font-size: 1.5em; font-weight: 900; color: #15803d; margin-bottom: 6px; }
+.done-sub { color: #374151; margin-bottom: 14px; font-size: 1.02em; line-height: 1.5; }
+.done-box2 .btn-wide { text-align: left; line-height: 1.4; }
+
+/* 禁食試算器：手術時間已知／未確定 */
+.surg-mode { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 10px; font-weight: 700; }
+.surg-mode label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.surg-mode input { width: 1.2em; height: 1.2em; }
+.surg-unknown { background: #fff7ed; border-left: 4px solid #ea580c; padding: 10px 12px; border-radius: 8px; line-height: 1.6; margin-bottom: 8px; color: #7c2d12; }
+
+/* 踝幫浦跟練：數拍畫面 */
+.ankle-opts { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-weight: 700; margin-bottom: 8px; }
+.ankle-opts select { font-size: 1em; padding: 4px 8px; border-radius: 8px; }
+.ankle-opts input { width: 1.2em; height: 1.2em; vertical-align: -3px; }
+.ankle-stage { background: #f1f5f9; border-radius: 16px; padding: 14px 10px 12px; text-align: center; transition: background .2s; }
+.ankle-stage.up { background: #e0f2fe; } .ankle-stage.down { background: #fef3c7; }
+.ankle-stage .ankle-cue { background: none; margin: 4px 0 0; padding: 0; font-size: 1.25em; }
+.ankle-foot { font-size: 3.2em; line-height: 1.2; display: inline-block; transition: transform .35s ease; transform-origin: 30% 80%; }
+.ankle-foot.up { transform: rotate(-28deg); } .ankle-foot.down { transform: rotate(22deg); }
+.ankle-beat { font-size: 3.4em; font-weight: 900; line-height: 1.1; min-height: 1.1em; color: #0f766e; }
+.ankle-stage.down .ankle-beat { color: #b45309; }
+.ankle-dots { display: flex; justify-content: center; gap: 10px; margin-top: 4px; }
+.ankle-dots i { width: 16px; height: 16px; border-radius: 50%; background: #cbd5e1; transition: background .15s, transform .15s; }
+.ankle-dots i.on { background: #0f766e; transform: scale(1.15); }
+.ankle-stage.down .ankle-dots i.on { background: #d97706; }
+.ankle-prog { text-align: center; font-size: 1.05em; margin: 10px 0; }
+.ankle-prog b { font-size: 1.4em; color: #0f766e; }
+
+/* 滿意度問卷（2026-11-28）：背景不捲動、只有問卷本身捲動，避免問卷被捲出畫面；顯示在提醒視窗之上 */
+#svOverlay { z-index: 1000; overflow: hidden; }
+#svOverlay .ask-box { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+
+/* 右上角「ERAS團隊」小按鈕：後台各職類登入口 */
+.team-link { display: inline-flex; align-items: center; font-size: .72em; font-weight: 700; color: #ccfbf1; border: 1px solid rgba(204,251,241,.55); border-radius: 999px; padding: 3px 10px; text-decoration: none; white-space: nowrap; opacity: .85; margin-left: 4px; }
+.team-link:hover { opacity: 1; background: rgba(255,255,255,.08); }
+.team-link-corner { position: absolute; top: 12px; right: 14px; z-index: 2; background: rgba(15,118,110,.85); color: #fff; border-color: transparent; }
+
+/* ───── 2026-11-28 病人使用流程優化 ───── */
+/* 1. 要做的事（工具、自我檢核、問卷）放在主欄，卡片間距 */
+main.layout > section > .card { margin: 14px 0; }
+#checkCard { border: 2px solid #99f6e4; }
+#checkCard h3::before { content: "✏️ "; }
+
+/* 6. 頂端列：手機版縮短標題、按鈕集中右側、登出較不顯眼 */
+.topbar-inner { flex-wrap: nowrap; }
+.tb-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+.brand-short { display: none; }
+.tb-logout { background: none; border: none; color: #99f6e4; font-size: .78em; text-decoration: underline; cursor: pointer; padding: 4px 2px; opacity: .8; }
+@media (max-width: 600px) {
+  .brand-full { display: none; }
+  .brand-short { display: inline; }
+  .brand { font-size: 1em; line-height: 1.3; }
+  .brand small { display: block; font-size: .72em; }
+  .topbar-inner { padding-top: 8px; padding-bottom: 8px; }
+  .test-banner { font-size: .76em; padding: 4px 10px; }
+  .tb-btn { padding: 5px 10px; font-size: .82em; }
+}
+
+/* 7. 「我有疑問」：手機上縮成圓形圖示，登入畫面時隱藏 */
+#loginOverlay:not(.hidden) ~ .ask-fab { display: none; }
+@media (max-width: 600px) {
+  .ask-fab { width: 56px; height: 56px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; right: 12px; bottom: 14px; }
+  .ask-fab .fab-tx { display: none; }
+  .ask-fab .fab-ic { font-size: 1.6em; }
+}
+
+/* 8. 影片：無內建控制列，點畫面播放／暫停，下方細進度條 */
+#video { cursor: pointer; }
+.vprog { height: 5px; background: rgba(255,255,255,.18); }
+.vprog i { display: block; height: 100%; width: 0; background: #5eead4; transition: width .25s linear; }
+#video.hidden + .vprog { display: none; }
+
+/* 10. 自動前往下一項 */
+.auto-next { display: flex; align-items: center; gap: 8px; justify-content: center; font-size: .9em; color: #475569; margin-top: 4px; cursor: pointer; }
+.auto-next input { width: 1.2em; height: 1.2em; }
+.toast-cancel { margin-left: 10px; background: #fff; color: #15803d; border: none; border-radius: 999px; padding: 4px 12px; font-weight: 900; cursor: pointer; }
+
+/* ───── 2026-11-28 模擬病人嚴格檢查後的修正 ───── */
+/* 1. 對比：未觀看與鎖定文字加深（≥ 4.5:1）；播放鈕加深 */
+.prog-all li.st-new { color: #475569; }
+.prog-legend .st-new { color: #475569; }
+.check-st { color: #334155; }
+.check-st.locked-st { color: #9a3412; font-weight: 700; }
+.check.locked span { color: #475569; }
+#btnPlay { background: #0f766e; color: #fff; }
+/* 4. 大字體：上方按鈕自動換行，不超出畫面 */
+html.large .topbar-inner { flex-wrap: wrap; row-gap: 6px; }
+html.large .tb-actions { width: 100%; justify-content: flex-start; }
+html.large .stages .stage span { font-size: .8em; }
+/* 5. 影片失敗提示與重新載入 */
+.video-err { background: #fff7ed; color: #9a3412; border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; font-weight: 700; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.video-err button { background: #ea580c; color: #fff; border: none; border-radius: 999px; padding: 8px 14px; font-weight: 900; cursor: pointer; min-height: 40px; }
+/* 13. 自動播放被擋時的大按鈕 */
+.player { position: relative; }
+.play-hint { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); background: rgba(15,118,110,.95); color: #fff; border: 3px solid #fff; border-radius: 999px; padding: 14px 22px; font-size: 1.15em; font-weight: 900; box-shadow: 0 6px 20px rgba(0,0,0,.35); cursor: pointer; z-index: 3; }
+/* 7. 字體與按鈕大小（長輩手指好點） */
+.stages .stage span { font-size: 15px; }
+.brand small { font-size: 15px !important; }
+.tb-logout { min-height: 44px; min-width: 44px; font-size: 15px; }
+.team-link { min-height: 36px; font-size: 14px; padding: 6px 12px; }
+.prog-all li { min-height: 44px; align-items: center; }
+#toc li:not(.stg) { min-height: 44px; display: flex; align-items: center; }
+.check { min-height: 48px; }
+.check input { width: 1.5em; height: 1.5em; flex: none; }
+#btnPlay, #btnRewind, #btnRate { min-height: 44px; }
+/* 9. 一次打勾 */
+.check-all { margin-top: 10px; background: #ecfdf5; color: #065f46; border: 2px solid #34d399; }
+/* 10. 第一次使用說明 */
+.onboard-box { text-align: left; }
+.onboard-box .done-h { text-align: center; color: #0f766e; }
+.onboard-steps { list-style: none; padding: 0; margin: 8px 0 12px; }
+.onboard-steps li { background: #f0fdfa; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 2px; font-size: 1.02em; line-height: 1.5; }
+.onboard-steps b { color: #0f766e; font-size: 1.08em; }
+.onboard-note { font-size: .92em; color: #334155; margin: 0 0 12px; }
+
+/* 頂列按鈕觸控高度 44px；完成勾號加深 */
+#btnFont,#lnkAdmin{min-height:44px;display:inline-flex;align-items:center}
+.toc li.done .ck,.prog-all .done,.st-done{color:#047857 !important}
+.st-done i,.st-done.cur i{color:#14532d !important}
+
+/* ═══ 2026-11-28 高齡友善（70 歲以上長輩） ═══ */
+/* 1-2 登入：只填病歷號；按鈕深色、明顯可按 */
+.login-sub{font-size:18px;line-height:1.6;color:#1e293b}
+#loginForm .btn-wide{background:#0f766e;color:#fff;font-size:20px;min-height:56px;opacity:1}
+#loginForm input{font-size:22px;min-height:52px}
+#loginForm label{font-size:18px}
+.privacy{font-size:16px !important;color:#334155 !important}
+/* 3 最小字 16px */
+.stages .stage span,#clipLabel,.test-banner,.player-bar,.ap-note,.check-tip,.tag{font-size:16px !important}
+/* 4 頂列：手機上不固定、縮小 */
+@media (max-width:760px){
+  .topbar{position:static}
+  .topbar-inner{padding-top:8px;padding-bottom:8px}
+  .test-banner{padding:6px 12px}
+}
+/* 5 我有疑問：手機也顯示文字、不遮住內容 */
+@media (max-width:760px){
+  .ask-fab{width:auto !important;height:auto !important;min-height:52px;padding:10px 16px !important;border-radius:28px !important;gap:6px}
+  .ask-fab .fab-tx{display:inline !important;font-size:17px;font-weight:800}
+}
+body{padding-bottom:90px}
+/* 6 鎖住提示醒目 */
+.check-tip.locked-tip{background:#fff7ed;border:2px solid #f59e0b;color:#7c2d12;border-radius:10px;padding:10px 12px;font-weight:700}
+.check.locked{opacity:.75}
+/* 7 下一步未完成時灰色 */
+#btnNext.pending{background:#cbd5e1 !important;color:#1e293b !important}
+/* 8 階段標籤：手機 3 欄兩列，不斷字 */
+@media (max-width:760px){
+  .stages{display:grid !important;grid-template-columns:repeat(3,1fr);gap:8px 6px;overflow:visible}
+  .stages .stage span{white-space:nowrap}
+}
+/* 10 影片按鈕放大、分開 */
+.player-bar{gap:12px !important}
+.player-bar button{min-height:52px !important;min-width:96px;font-size:18px !important;padding:10px 16px !important}
+.vol-tip{flex-basis:100%;font-size:15px;color:#cbd5e1}
+/* 11 說明一次一步 */
+.onboard-steps li span{font-size:19px;line-height:1.7}
+.onboard-steps li b{font-size:22px}
+.onboard-pg{text-align:center;color:#475569;font-size:16px;margin:6px 0}
+#onboardGo{min-height:56px;font-size:20px}
+
+/* 病人輸入病歷號後，團隊登入鈕鎖住 */
+.team-link-corner.locked{opacity:.35;pointer-events:none;cursor:not-allowed}
+
+/* 2026-11-28 提問回覆、新回覆提醒、其他語音方式折疊 */
+.ask-reply { display: block; width: 100%; margin-top: 6px; padding: 8px 10px; background: #ecfdf5; border-left: 4px solid #0f766e; border-radius: 6px; font-size: 17px; line-height: 1.6; color: #134e4a; }
+.ask-badge { margin-left: 6px; background: #c00000; color: #fff; border-radius: 999px; padding: 2px 8px; font-size: 14px; font-weight: 700; }
+.ask-more { margin: 8px 0; }
+.ask-more summary { cursor: pointer; color: #475569; font-size: 16px; padding: 6px 0; }
+.ask-more[open] summary { margin-bottom: 6px; }
+#stages .stage { cursor: pointer; min-height: 44px; } #stages .stage:active { opacity: .7; }
