@@ -757,6 +757,7 @@
   function ttsStop() { ttsSeq++; if ('speechSynthesis' in window) speechSynthesis.cancel(); ttsClear(); }
   function speak(text) {
     if (!('speechSynthesis' in window)) return;
+    var busy = speechSynthesis.speaking || speechSynthesis.pending;   // 停止前是否正在念
     ttsStop();
     ttsRender(text);
     var seq = ttsSeq, nodeAt = state.id, chunks = ttsChunks(text), idx = 0;
@@ -787,8 +788,21 @@
       speechSynthesis.speak(u);
     }
     state.speaking = true; $('btnPlay').textContent = '■ 停止';
-    setTimeout(next, 150);
+    /* 手機（尤其 iPhone）只允許「由點按直接觸發」的語音；延遲後才 speak 會被靜音。
+       沒有其他語音在念時立即開始（保留點按的觸發權）；正在念時才稍等，避免 cancel 後立刻 speak 被吞掉。 */
+    if (!busy) next(); else setTimeout(next, 150);
   }
+  /* 第一次點按畫面時先「解鎖」語音引擎（念一個無聲的空白），之後自動朗讀才不會沒有聲音 */
+  (function unlockSpeech() {
+    if (!('speechSynthesis' in window)) return;
+    var done = false;
+    function unlock() {
+      if (done) return; done = true;
+      try { var u = new SpeechSynthesisUtterance(' '); u.volume = 0; u.lang = 'zh-TW'; speechSynthesis.speak(u); } catch (e) {}
+      document.removeEventListener('touchend', unlock, true); document.removeEventListener('click', unlock, true);
+    }
+    document.addEventListener('touchend', unlock, true); document.addEventListener('click', unlock, true);
+  })();
   function stopMedia() {
     /* 離開前記下看到哪一段、哪一秒（影片已播完則不記） */
     try {
