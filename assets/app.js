@@ -717,7 +717,17 @@
     for (var i = 0; i < sp.length; i++) {
       sp[i].className = (i >= idx && i < idx + len) ? 'tts-now' : (i >= a && i <= b) ? 'tts-sent' : (i < idx ? 'tts-done' : '');
     }
-    if (idx !== tts.last && sp[idx].scrollIntoView && idx % 12 === 0) { try { sp[idx].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }
+    /* 念到下方時，讓文字框自己往上捲，正在念的那行保持在框內約 1/3 高度（只捲文字框，不捲整頁） */
+    if (idx !== tts.last) {
+      var box = $('voiceText'), el = sp[idx];
+      if (box && box.scrollHeight > box.clientHeight + 4) {
+        var top = el.offsetTop - box.offsetTop, h = box.clientHeight;
+        if (top < box.scrollTop + 8 || top + el.offsetHeight > box.scrollTop + h * 0.72) {
+          var to = Math.max(0, top - h * 0.3);
+          try { box.scrollTo({ top: to, behavior: 'smooth' }); } catch (e) { box.scrollTop = to; }
+        }
+      }
+    }
     tts.last = idx;
   }
   function ttsClear() {

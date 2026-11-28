@@ -421,3 +421,8 @@ body{padding-bottom:90px}
 .ask-more summary { cursor: pointer; color: #475569; font-size: 16px; padding: 6px 0; }
 .ask-more[open] summary { margin-bottom: 6px; }
 #stages .stage { cursor: pointer; min-height: 44px; } #stages .stage:active { opacity: .7; }
+
+/* 2026-11-28 語音解說文字太多時：文字框固定在卡片內、可自行捲動，朗讀時自動往上捲，不會被卡片下緣遮住 */
+.voice-card { min-height: 0; overflow: hidden; }
+.voice-card .label { flex: none; }
+.voice-card #voiceText { flex: 0 1 auto; margin: auto 0; min-height: 0; max-height: none; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 12px; scroll-padding: 8px; }
